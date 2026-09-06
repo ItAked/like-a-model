@@ -1,3 +1,4 @@
+/** MOTION LOCK: parallax, counters, heading/tile .reveal stagger. */
 export default function Stats() {
   return (
     <>

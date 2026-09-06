@@ -37,7 +37,7 @@ export default function Footer() {
             <ul className="socials" aria-label="حسابات التواصل الاجتماعي">
               <li><a href="https://www.tiktok.com/" rel="noopener" data-social="tiktok" aria-label="تيك توك"><svg className="ico" aria-hidden="true"><use href="#i-tiktok"></use></svg></a></li>
               <li><a href="https://www.youtube.com/" rel="noopener" data-social="youtube" aria-label="يوتيوب"><svg className="ico" aria-hidden="true"><use href="#i-youtube"></use></svg></a></li>
-              <li><a href="https://www.instagram.com/" rel="noopener" data-social="instagram" aria-label="إنستغرام"><svg className="ico" aria-hidden="true"><use href="#i-instagram"></use></svg></a></li>
+              <li><a href="https://www.instagram.com/" rel="noopener" data-social="instagram" aria-label="إنستغرام"><svg className="ico ico-outline" aria-hidden="true"><use href="#i-instagram"></use></svg></a></li>
               <li><a href="https://www.facebook.com/" rel="noopener" data-social="facebook" aria-label="فيسبوك"><svg className="ico" aria-hidden="true"><use href="#i-facebook"></use></svg></a></li>
               <li><a href="https://x.com/" rel="noopener" data-social="x" aria-label="إكس"><svg className="ico" aria-hidden="true"><use href="#i-x"></use></svg></a></li>
               <li><a href="https://www.linkedin.com/" rel="noopener" data-social="linkedin" aria-label="لينكدإن"><svg className="ico" aria-hidden="true"><use href="#i-linkedin"></use></svg></a></li>

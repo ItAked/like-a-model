@@ -1,11 +1,11 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
+import { m, useReducedMotion } from 'framer-motion';
+import { dur, easeOut, easeUi, tween } from '../motion/tokens.js';
 
 /* boot.js mutates wizard DOM; skip re-renders so React does not reset steps. */
 const BookingWizard = memo(function BookingWizard() {
   return (
     <>
-        <div className="bk-modal-backdrop" data-bk-close tabIndex="-1"></div>
-        <div className="bk-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="bkModalTitle" tabIndex="-1">
           <button className="bk-modal-close" type="button" data-bk-close aria-label="إغلاق">
             <svg className="ico" aria-hidden="true"><use href="#i-close"></use></svg>
           </button>
@@ -132,12 +132,9 @@ const BookingWizard = memo(function BookingWizard() {
                 </div>
                 <div className="bk-slots" id="bkSlots" hidden>
                   <p className="bk-slots-lbl">الأوقات المتاحة</p>
-                  <div className="bk-slots-list" id="bkSlotsList" role="group" aria-label="أوقات الجلسة">
-                    <button className="bk-slot" type="button" data-slot="10:00">10:00 ص</button>
-                    <button className="bk-slot" type="button" data-slot="12:00">12:00 م</button>
-                    <button className="bk-slot" type="button" data-slot="16:00">4:00 م</button>
-                    <button className="bk-slot" type="button" data-slot="18:00">6:00 م</button>
-                  </div>
+                  <p className="bk-slots-status" id="bkSlotsStatus" hidden role="status" aria-live="polite"></p>
+                  <div className="bk-slots-list" id="bkSlotsList" role="group" aria-label="أوقات الجلسة"></div>
+                  <button className="bk-slots-retry" type="button" id="bkSlotsRetry" hidden>إعادة المحاولة</button>
                 </div>
                 <span className="field-err" data-err-for="bkAppt"></span>
                 <input type="hidden" id="bkDate" name="date" defaultValue="" />
@@ -166,15 +163,45 @@ const BookingWizard = memo(function BookingWizard() {
               <p className="form-status" role="status" aria-live="polite" id="bkStatus"></p>
             </form>
           </div>
-        </div>
     </>
   );
 }, () => true);
 
 export default function BookingModal({ open }) {
+  const reduce = useReducedMotion();
+  const [shown, setShown] = useState(Boolean(open));
+  if (open && !shown) setShown(true);
+
   return (
-    <div className="bk-modal" id="bookingModal" hidden={open ? undefined : true} aria-hidden={open ? 'false' : 'true'}>
-      <BookingWizard />
+    <div
+      className="bk-modal"
+      id="bookingModal"
+      hidden={shown ? undefined : true}
+      aria-hidden={open ? 'false' : 'true'}
+    >
+      <m.div
+        className="bk-modal-backdrop"
+        data-bk-close
+        tabIndex="-1"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: open ? 1 : 0 }}
+        transition={tween(reduce ? 0 : dur.fade, easeUi)}
+      />
+      <m.div
+        className="bk-modal-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="bkModalTitle"
+        tabIndex="-1"
+        initial={reduce ? false : { opacity: 0, y: 8 }}
+        animate={open ? { opacity: 1, y: 0 } : { opacity: 0, y: reduce ? 0 : 8 }}
+        transition={open ? tween(reduce ? 0 : dur.panel, easeOut) : tween(reduce ? 0 : dur.panelExit, easeUi)}
+        onAnimationComplete={() => {
+          if (!open) setShown(false);
+        }}
+      >
+        <BookingWizard />
+      </m.div>
     </div>
   );
 }

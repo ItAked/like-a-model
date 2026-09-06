@@ -1,7 +1,8 @@
 import HomeService from './HomeService.jsx';
-import WhyChooseUs from './WhyChooseUs.jsx';
+import PinScrollCue from './PinScrollCue.jsx';
 import { assetUrl } from '../lib/asset.js';
 
+/** MOTION LOCK: orbit path, stage nodes, .support-head, copy accordion. */
 export default function SupportJourney({ onOpenBooking }) {
   return (
     <>
@@ -16,12 +17,8 @@ export default function SupportJourney({ onOpenBooking }) {
               <span className="sec-ornament-line"></span>
             </p>
             <h2 className="support-title" id="supportTitle">قصتك تبدأ هنا</h2>
-            <p className="support-script">لكل سيدة حكاية مختلفة…</p>
             <p className="support-lede">
-              وكل حكاية رحلة تستحق أن تُصمم بعناية. لذلك لا نقدّم حلولًا جاهزة، بل نصمم رحلة تحوّل خاصة تناسب أهدافكِ وأسلوب حياتكِ واحتياجاتكِ، ونرافقكِ بالتدريب والخبرة والمتابعة حتى تصلي إلى النتائج التي تستحقينها.
-            </p>
-            <p className="support-lede">
-              لأن رحلتكِ ليست مجرد تدريب… بل تجربة متكاملة صُممت من أجلكِ.
+              لا نؤمن بالحلول الجاهزة؛ نصمّم لكِ برنامجًا متكاملاً يبدأ من أهدافكِ واحتياجاتكِ وأسلوب حياتكِ، ويجمع التدريب والتغذية والمتابعة لتصلي إلى نتيجة تناسبكِ وتستمر معكِ.
             </p>
           </header>
 
@@ -90,11 +87,11 @@ export default function SupportJourney({ onOpenBooking }) {
             </article>
           </div>
         </div>
+          <PinScrollCue />
         </div>
         </div>
 
         <HomeService onOpenBooking={onOpenBooking} />
-        <WhyChooseUs />
       </section>
     </>
   );

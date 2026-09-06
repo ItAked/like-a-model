@@ -1,3 +1,4 @@
+/** Sole section/hash scroll helper. Route restore: App.jsx. Clicks: Header.jsx. */
 export function navScrollOffset() {
   const header = document.getElementById('siteHeader');
   const h = header ? Math.round(header.getBoundingClientRect().height) : 72;

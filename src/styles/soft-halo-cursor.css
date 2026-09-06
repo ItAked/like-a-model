@@ -1,0 +1,117 @@
+/* Soft Halo custom cursor — desktop fine-pointer only.
+   Standalone: do not reuse these rules for site UI. */
+
+.soft-halo{
+  position:fixed;
+  inset:0;
+  z-index:100000;
+  pointer-events:none;
+  overflow:visible;
+  contain:layout style;
+  opacity:0;
+  will-change:opacity;
+}
+.soft-halo__layer{
+  position:absolute;
+  top:0;
+  left:0;
+  display:block;
+  pointer-events:none;
+  will-change:transform,opacity;
+  transform:translate3d(-120px,-120px,0);
+}
+.soft-halo__dot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#44231A;
+}
+.soft-halo__ring{
+  width:32px;
+  height:32px;
+  overflow:visible;
+  transform-origin:16px 16px;
+}
+.soft-halo__ring circle{
+  fill:none;
+  stroke:#E0AEAF;
+  stroke-width:1;
+  vector-effect:non-scaling-stroke;
+}
+.soft-halo__heart{
+  width:11px;
+  height:11px;
+  overflow:visible;
+  opacity:0;
+}
+.soft-halo__heart path{
+  fill:#44231A;
+}
+
+/* JS adds .has-soft-halo only for fine hover pointers without reduced motion. */
+html.has-soft-halo,
+html.has-soft-halo body{
+  cursor:none;
+}
+html.has-soft-halo a,
+html.has-soft-halo button,
+html.has-soft-halo [role="button"],
+html.has-soft-halo label,
+html.has-soft-halo summary,
+html.has-soft-halo .fab{
+  cursor:none;
+}
+
+html.has-soft-halo input,
+html.has-soft-halo textarea,
+html.has-soft-halo select,
+html.has-soft-halo iframe,
+html.has-soft-halo .map-frame,
+html.has-soft-halo .map-frame iframe{
+  cursor:auto;
+}
+html.has-soft-halo textarea,
+html.has-soft-halo [contenteditable]:not([contenteditable="false"]),
+html.has-soft-halo input:not([type="button"], [type="submit"], [type="reset"], [type="checkbox"], [type="radio"], [type="file"], [type="color"], [type="range"], [type="image"]){
+  cursor:text;
+}
+
+html.has-soft-halo.is-soft-halo-selecting,
+html.has-soft-halo.is-soft-halo-selecting a,
+html.has-soft-halo.is-soft-halo-selecting button,
+html.has-soft-halo.is-soft-halo-selecting [role="button"],
+html.has-soft-halo.is-soft-halo-selecting label,
+html.has-soft-halo.is-soft-halo-selecting summary,
+html.has-soft-halo.is-soft-halo-selecting .fab{
+  cursor:text;
+}
+
+@media (hover:none), (pointer:coarse){
+  .soft-halo{display:none !important}
+  html.has-soft-halo,
+  html.has-soft-halo body,
+  html.has-soft-halo a,
+  html.has-soft-halo button,
+  html.has-soft-halo [role="button"],
+  html.has-soft-halo label,
+  html.has-soft-halo summary,
+  html.has-soft-halo .fab{
+    cursor:auto;
+  }
+}
+@media (prefers-reduced-motion:reduce){
+  .soft-halo{display:none !important}
+  html.has-soft-halo,
+  html.has-soft-halo body,
+  html.has-soft-halo a,
+  html.has-soft-halo button,
+  html.has-soft-halo [role="button"],
+  html.has-soft-halo label,
+  html.has-soft-halo summary,
+  html.has-soft-halo .fab{
+    cursor:auto;
+  }
+}
+@media print{
+  .soft-halo{display:none !important}
+}

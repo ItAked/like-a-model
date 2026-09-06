@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { AnimatePresence, m, useMotionValueEvent, useReducedMotion, useScroll } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import MobileMenu from './MobileMenu.jsx';
 import { navScrollOffset, scrollToNavTarget } from '../lib/navScroll.js';
 import { assetUrl } from '../lib/asset.js';
+import { dur, easeUi, tween } from '../motion/tokens.js';
 
 const NAV = [
   { id: 'home', label: 'الرئيسية' },
@@ -14,9 +16,30 @@ const NAV = [
   { id: 'contact', label: 'تواصلي معنا' },
 ];
 
+function NavLinks({ home, activeId, goSection }) {
+  return (
+    <ul>
+      {NAV.map((item) => (
+        <li key={item.id}>
+          <Link
+            to={{ pathname: '/', hash: `#${item.id}` }}
+            aria-current={home && activeId === item.id ? 'true' : undefined}
+            onClick={goSection(item.id)}
+          >
+            {item.label}
+          </Link>
+        </li>
+      ))}
+    </ul>
+  );
+}
+
+/** Live owner of header scroll state, mobile nav, and section scroll-spy. */
 export default function Header({ pinned }) {
   const location = useLocation();
   const navigate = useNavigate();
+  const reduce = useReducedMotion();
+  const { scrollY } = useScroll();
   const [navOpen, setNavOpen] = useState(false);
   const [scrolled, setScrolled] = useState(Boolean(pinned));
   const [desktop, setDesktop] = useState(() => window.matchMedia('(min-width: 1080px)').matches);
@@ -31,7 +54,12 @@ export default function Header({ pinned }) {
     return () => mq.removeEventListener('change', sync);
   }, []);
 
+  useMotionValueEvent(scrollY, 'change', (y) => {
+    setScrolled(Boolean(pinned) || y > 40);
+  });
+
   useEffect(() => {
+    setScrolled(Boolean(pinned) || window.scrollY > 40);
     const header = document.getElementById('siteHeader');
     const syncOffset = () => {
       if (!header) return;
@@ -40,17 +68,9 @@ export default function Header({ pinned }) {
         `${Math.round(header.getBoundingClientRect().height)}px`,
       );
     };
-    const update = () => {
-      setScrolled(Boolean(pinned) || window.scrollY > 40);
-      syncOffset();
-    };
-    update();
+    syncOffset();
     window.addEventListener('resize', syncOffset);
-    window.addEventListener('scroll', update, { passive: true });
-    return () => {
-      window.removeEventListener('resize', syncOffset);
-      window.removeEventListener('scroll', update);
-    };
+    return () => window.removeEventListener('resize', syncOffset);
   }, [pinned]);
 
   useEffect(() => {
@@ -114,6 +134,7 @@ export default function Header({ pinned }) {
     navOpen ? 'is-nav-open' : '',
   ].filter(Boolean).join(' ');
 
+  const overlayDur = reduce ? 0 : dur.overlay;
   const navExposed = navOpen || (desktop && (pinned || scrolled));
 
   const goSection = (id) => (e) => {
@@ -125,6 +146,8 @@ export default function Header({ pinned }) {
     navigate({ pathname: '/', hash: `#${id}` }, { replace: true });
     scrollToNavTarget(target, false);
   };
+
+  const links = <NavLinks home={home} activeId={activeId} goSection={goSection} />;
 
   return (
     <header className={headerClass} id="siteHeader">
@@ -139,27 +162,34 @@ export default function Header({ pinned }) {
             </span>
           </Link>
 
-          <nav
-            className="site-nav"
-            id="siteNav"
-            aria-label="التنقل الرئيسي"
-            aria-hidden={navExposed ? 'false' : 'true'}
-            inert={!navExposed ? true : undefined}
-          >
-            <ul>
-              {NAV.map((item) => (
-                <li key={item.id}>
-                  <Link
-                    to={{ pathname: '/', hash: `#${item.id}` }}
-                    aria-current={home && activeId === item.id ? 'true' : undefined}
-                    onClick={goSection(item.id)}
-                  >
-                    {item.label}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </nav>
+          {desktop ? (
+            <nav
+              className="site-nav"
+              id="siteNav"
+              aria-label="التنقل الرئيسي"
+              aria-hidden={navExposed ? 'false' : 'true'}
+              inert={!navExposed ? true : undefined}
+            >
+              {links}
+            </nav>
+          ) : (
+            <AnimatePresence>
+              {navOpen ? (
+                <m.nav
+                  className="site-nav"
+                  id="siteNav"
+                  aria-label="التنقل الرئيسي"
+                  aria-hidden="false"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={tween(overlayDur, easeUi)}
+                >
+                  {links}
+                </m.nav>
+              ) : null}
+            </AnimatePresence>
+          )}
 
           <div className="header-tools">
             <MobileMenu open={navOpen} onToggle={() => setNavOpen((v) => !v)} />
@@ -168,7 +198,7 @@ export default function Header({ pinned }) {
                 <li><a href="https://www.linkedin.com/" rel="noopener noreferrer" target="_blank" data-social="linkedin" aria-label="لينكدإن"><svg className="ico" aria-hidden="true"><use href="#i-linkedin"></use></svg></a></li>
                 <li><a href="https://x.com/" rel="noopener noreferrer" target="_blank" data-social="x" aria-label="إكس"><svg className="ico" aria-hidden="true"><use href="#i-x"></use></svg></a></li>
                 <li><a href="https://www.facebook.com/" rel="noopener noreferrer" target="_blank" data-social="facebook" aria-label="فيسبوك"><svg className="ico" aria-hidden="true"><use href="#i-facebook"></use></svg></a></li>
-                <li><a href="https://www.instagram.com/" rel="noopener noreferrer" target="_blank" data-social="instagram" aria-label="إنستغرام"><svg className="ico" aria-hidden="true"><use href="#i-instagram"></use></svg></a></li>
+                <li><a href="https://www.instagram.com/" rel="noopener noreferrer" target="_blank" data-social="instagram" aria-label="إنستغرام"><svg className="ico ico-outline" aria-hidden="true"><use href="#i-instagram"></use></svg></a></li>
                 <li><a href="https://www.tiktok.com/" rel="noopener noreferrer" target="_blank" data-social="tiktok" aria-label="تيك توك"><svg className="ico" aria-hidden="true"><use href="#i-tiktok"></use></svg></a></li>
                 <li><a href="https://www.youtube.com/" rel="noopener noreferrer" target="_blank" data-social="youtube" aria-label="يوتيوب"><svg className="ico" aria-hidden="true"><use href="#i-youtube"></use></svg></a></li>
                 <li>

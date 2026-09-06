@@ -2,7 +2,31 @@
    Like A Model — Landing Page JS
    ──────────────────────────────────────────────────────────────────────────
    ✏️  كل ما يحتاج تعديلًا موجود في الكتل المرقّمة أدناه فقط.
+
+   MOTION LOCKS — do not retune selectors, observers, class names, or timings:
+   • Support orbit: #support / .section-support, .support-orbit, .support-head,
+     stage nodes, initSupportOrbit. CSS: .section-support through orbit PRM.
+   • Stats: #stats / .stats-section, .stat-num[data-count], .stats-parallax-bg,
+     heading/tile .reveal stagger — initCounters, initStatsParallax.
+   • Contact: #contact-form / .section-contact, .contact-parallax-bg,
+     .contact-unified-card.reveal (including leave-on-exit) — initContactParallax.
+   • Tokens in :root: --t-fast 180ms, --t-med 320ms, --t-slow 600ms, --t-btn 220ms,
+     --ease, --ease-out. Do not restyle global .btn/.input in a way that hits contact.
+
+   Header / nav / scroll-spy live in Header.jsx — do not revive initHeader,
+   initNav, or initScrollSpy here.
+
+   Hash / section scroll lives in src/lib/navScroll.js. Route restore: App.jsx.
+   Click-to-section: Header.jsx (and Hero). Do not reintroduce initHashLanding.
    ========================================================================== */
+
+import {
+  createContactRequest,
+  createEvaluationBooking,
+  getEvaluationSlots,
+  normalizeIsoDate,
+  PublicApiError,
+} from '../lib/publicApi.js';
 
 /* ✏️ ①  بيانات التواصل */
 export const CONTACT = {
@@ -54,81 +78,7 @@ export const LANG = {
 /* ✏️ ⑦  شكل أرقام «نجاحنا بالأرقام»: false = ٣٥+ عربية · true = 35+ لاتينية */
 export const STATS_LATIN = false;
 
-/* ✏️ ⑧  أسئلة وإجابات الشات بوت (ثابتة — بدون API) */
-export const CHAT_FAQ = [
-  {
-    q: 'ما هو Like A Model؟',
-    a: 'Like A Model هي رحلة تحوّل متكاملة صُممت خصيصًا لكِ، تجمع التدريب الشخصي والتغذية والمتابعة وقياس النتائج؛ لبناء أسلوب حياة متوازن ونتائج تدوم.'
-  },
-  {
-    q: 'كيف أبدأ رحلتي؟',
-    a: 'ابدئي بجلسة تقييم مجانية، ثم نحدد هدفكِ ومستوى تجربتكِ وأسلوب التدريب الأنسب لكِ، وبعدها نصمّم رحلتكِ الخاصة.'
-  },
-  {
-    q: 'هل البرنامج الغذائي مشمول ضمن الاشتراك؟',
-    a: 'نعم، يتضمن البرنامج توجيهًا غذائيًا مصممًا ليتناسب مع أهدافكِ واحتياجاتكِ ونمط حياتكِ.'
-  },
-  {
-    q: 'ماذا يشمل الاشتراك؟',
-    a: 'يشمل جلسة تقييم، تحليل تكوين الجسم InBody، قياسات دورية، جلسات تدريب شخصية، برنامجًا غذائيًا، ومتابعة مستمرة بحسب الباقة المناسبة لكِ.'
-  },
-  {
-    q: 'ما الفرق بين EMS Training وPersonal Training وReformer Pilates؟',
-    a: 'EMS Training يعتمد على التحفيز الكهربائي للعضلات، ومدة الجلسة 20 دقيقة.\nPersonal Training تدريب شخصي مصمم وفق أهدافكِ، ومدة الجلسة 60 دقيقة.\nReformer Pilates تمارين على جهاز الريفورمر لتحسين المرونة والتوازن والقوة، ومدة الجلسة 60 دقيقة.'
-  },
-  {
-    q: 'ما الفرق بين Private وElite وSignature؟',
-    a: 'Signature Experience هي البداية المتكاملة التي تجمع الخدمات الأساسية لرحلتكِ.\nElite Experience تمنحكِ مزايا إضافية وتوجيهًا أوسع.\nPrivate Experience هي أعلى مستوى من الخصوصية والعناية، بخدمات وتجربة مصممة بالكامل لكِ.'
-  },
-  {
-    q: 'هل يمكنني حجز جلسات؟',
-    a: 'نعم، يمكنكِ حجز جلساتكِ واختيار الوقت المتاح المناسب لكِ.'
-  },
-  {
-    q: 'هل يمكنني الاشتراك مع صديقتي أو أحد أفراد أسرتي؟',
-    a: 'نعم، نوفر باقات للتدريب المشترك مع الصديقات أو أفراد الأسرة، لتجعل الرحلة أكثر تحفيزًا والتزامًا.'
-  },
-  {
-    q: 'متى أبدأ بملاحظة النتائج؟',
-    a: 'تختلف النتائج حسب الهدف والالتزام، لكن كثيرًا من العميلات يبدأن بملاحظة فرق خلال الأسابيع الأولى من البرنامج.'
-  },
-  {
-    q: 'كيف تتم متابعة تقدمي؟',
-    a: 'نتابع تقدمكِ عبر القياسات الدورية، مراجعة التمارين والتغذية، تقييم مستوى الالتزام، ومتابعة النتائج والتطور بشكل مستمر.'
-  },
-  {
-    q: 'ماذا لو لدي إصابة أو حالة صحية خاصة؟',
-    a: 'نبدأ بجلسة تقييم للتأكد من أن رحلتكِ مناسبة وآمنة ومتوافقة مع احتياجاتكِ الصحية.'
-  },
-  {
-    q: 'هل يمكن تغيير المدربة؟',
-    a: 'نعم، يمكن تغيير المدربة عند الحاجة بما يضمن راحتكِ واستمراريتكِ في الرحلة.'
-  },
-  {
-    q: 'هل يمكن إعادة جدولة الجلسات؟',
-    a: 'نعم، يمكنكِ إعادة جدولة الجلسة عند إبلاغ المدربة قبل الموعد بوقت كافٍ.'
-  },
-  {
-    q: 'ماذا لو كنت مسافرة أو لدي ظرف شخصي؟',
-    a: 'البرنامج مرن، ويمكننا مساعدتكِ في تنظيم الجلسات المتبقية أو إعادة جدولتها بما يناسب ظرفكِ.'
-  },
-  {
-    q: 'هل يوجد تجديد للاشتراك؟',
-    a: 'نعم، يمكنكِ تجديد اشتراككِ والاستمرار في رحلتكِ مع تطوير الخطة حسب تقدمكِ وأهدافكِ الجديدة.'
-  },
-  {
-    q: 'هل يوجد برنامج إحالة؟',
-    a: 'نعم، يمكنكِ دعوة صديقاتكِ والاستفادة من رصيد أو مزايا خاصة وفق برنامج الإحالة المتاح.'
-  },
-  {
-    q: 'ما الذي يميز Like A Model؟',
-    a: 'لأننا لا نقدم تدريبًا فقط؛ نصمم لكِ رحلة متكاملة تجمع التدريب والتغذية والمتابعة وقياس النتائج والدعم المستمر، لتصلي إلى أسلوب حياة صحي يدوم.'
-  },
-  {
-    q: 'لم أجد سؤالي، ماذا أفعل؟',
-    a: 'يسعدنا تواصلكِ معنا، وسيتواصل فريقنا معكِ لفهم احتياجكِ وتقديم الحل الأنسب لكِ.'
-  }
-];
+/* ✏️ ⑧  أسئلة وإجابات الشات بوت — src/data/chatFaq.js */
 
 /* ────────────────────────────────────────────────────────────────────────── */
 
@@ -318,6 +268,7 @@ export function bootPageEffects() {
 
 
   /* ══════════ 5. عدّاد «نجاحنا بالأرقام» ══════════ */
+  /* MOTION LOCK — Stats counters. Do not change thresholds, durations, or targets. */
   function initCounters() {
     const nums = $$('.stat-num[data-count]');
     if (!nums.length) return;
@@ -368,6 +319,7 @@ export function bootPageEffects() {
 
 
   /* ══════════ 5b. Parallax خلفية «نجاحنا بالأرقام» ══════════ */
+  /* MOTION LOCK — Stats parallax. Do not change scroll factor or targets. */
   function initStatsParallax() {
     const statsSection = document.querySelector('.stats-section');
     const statsBg = document.querySelector('.stats-section .stats-parallax-bg');
@@ -411,6 +363,7 @@ export function bootPageEffects() {
 
 
   /* ══════════ 5c. Parallax شريط صورة التواصل العلوي ══════════ */
+  /* MOTION LOCK — Contact parallax. Do not change scroll factor or targets. */
   function initContactParallax() {
     const banner = document.querySelector('.section-contact .contact-banner');
     const contactBg = document.querySelector('.section-contact .contact-parallax-bg');
@@ -452,156 +405,17 @@ export function bootPageEffects() {
   }
 
 
-  /* إزاحة الهيدر الثابت + فراغ --scroll-gap (1.25rem) حتى لا يُغطّى عنوان القسم */
-  function navScrollOffset() {
-    const header = $('#siteHeader');
-    const h = header ? Math.round(header.getBoundingClientRect().height) : 72;
-    const fs = parseFloat(getComputedStyle(document.documentElement).fontSize) || 16;
-    return h + 1.25 * fs;
-  }
-
-  function scrollToNavTarget(el, instant) {
-    const behavior = instant || reduceMotion ? 'auto' : 'smooth';
-    if (!el || el.id === 'home') {
-      window.scrollTo({ top: 0, behavior });
-      return;
-    }
-    const y = Math.max(0, window.scrollY + el.getBoundingClientRect().top - navScrollOffset());
-    window.scrollTo({ top: y, behavior });
-  }
-
-  /* ══════════ 6. الهيدر ══════════ */
-  function initHeader() {
-    const header = $('#siteHeader');
-    if (!header) return;
-    let ticking = false;
-
-    const syncOffset = () => {
-      document.documentElement.style.setProperty(
-        '--header-measured',
-        `${Math.round(header.getBoundingClientRect().height)}px`
-      );
-    };
-
-    const update = () => {
-      const pinned = document.body.classList.contains('page-syj')
-        || document.body.classList.contains('page-stories');
-      header.classList.toggle('is-scrolled', pinned || window.scrollY > 40);
-      syncOffset();
-      ticking = false;
-    };
-    syncOffset();
-    update();
-    window.addEventListener('resize', syncOffset);
-    window.addEventListener('scroll', () => {
-      if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
-    }, { passive: true });
-  }
-
-
-  /* ══════════ 7. القائمة الموسَّعة ══════════ */
-  function initNav() {
-    const header = $('#siteHeader');
-    const toggle = $('#navToggle');
-    const nav = $('#siteNav');
-    if (!header || !toggle || !nav) return;
-
-    const FOCUSABLE = 'a[href], button:not([disabled])';
-    const mobileMq = window.matchMedia('(max-width: 1079px)');
-    let lastFocus = null;
-
-    const isOpen = () => toggle.getAttribute('aria-expanded') === 'true';
-    const isMobile = () => mobileMq.matches;
-    const isDesktopInline = () => !isMobile() && header.classList.contains('is-scrolled');
-
-    const setExpanded = (open) => {
-      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
-      toggle.setAttribute('aria-label', open ? 'إغلاق القائمة' : 'فتح القائمة');
-      header.classList.toggle('is-nav-open', open);
-      document.body.classList.toggle('nav-open', open && isMobile());
-      const exposed = open || isDesktopInline();
-      nav.setAttribute('aria-hidden', exposed ? 'false' : 'true');
-      if ('inert' in nav) nav.inert = !exposed;
-    };
-
-    const open = () => {
-      if (isOpen() || isDesktopInline()) return;
-      lastFocus = document.activeElement;
-      setExpanded(true);
-      document.addEventListener('keydown', onKey);
-      document.addEventListener('pointerdown', onOutside, true);
-      if (isMobile()) nav.querySelector(FOCUSABLE)?.focus();
-    };
-
-    const shut = ({ restoreFocus = true } = {}) => {
-      if (!isOpen()) return;
-      setExpanded(false);
-      document.removeEventListener('keydown', onKey);
-      document.removeEventListener('pointerdown', onOutside, true);
-      if (!restoreFocus) return;
-      const back = (lastFocus && lastFocus !== document.body && document.contains(lastFocus))
-        ? lastFocus : toggle;
-      back.focus();
-    };
-
-    let wasInline = false;
-    const syncDesktopInline = () => {
-      const inline = isDesktopInline();
-      if (inline === wasInline && !(inline && isOpen())) return;
-      wasInline = inline;
-      if (inline && isOpen()) shut({ restoreFocus: false });
-      setExpanded(isOpen());
-    };
-
-    function onKey(e) {
-      if (e.key === 'Escape') { e.preventDefault(); shut(); return; }
-      if (e.key !== 'Tab' || !isMobile()) return;
-      const items = $$(FOCUSABLE, header).filter((el) => el.offsetParent !== null);
-      if (!items.length) return;
-      const first = items[0], last = items[items.length - 1];
-      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
-      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
-    }
-
-    function onOutside(e) {
-      if (header.contains(e.target)) return;
-      shut();
-    }
-
-    toggle.addEventListener('click', () => { isOpen() ? shut() : open(); });
-    $$('a[href^="#"]', header).forEach((a) => {
-      a.addEventListener('click', (e) => {
-        const id = (a.hash || '').replace(/^#/, '');
-        if (!id) return;
-        const target = document.getElementById(id);
-        if (!target) return;
-        e.preventDefault();
-        shut();
-        if (history.replaceState) history.replaceState(null, '', '#' + id);
-        else location.hash = id;
-        scrollToNavTarget(target, false);
-      });
-    });
-
-    mobileMq.addEventListener('change', () => {
-      if (isOpen()) shut({ restoreFocus: false });
-      syncDesktopInline();
-    });
-
-    window.addEventListener('scroll', syncDesktopInline, { passive: true });
-    setExpanded(false);
-    syncDesktopInline();
-  }
-
-
   /* ══════════ 8. ظهور العناصر عند التمرير ══════════ */
   function initReveal() {
     clearTimeout(window.__lamReveal);
-    const items = $$('.reveal').filter((el) => !el.classList.contains('eco-card') && !el.closest('#ecosystem .eco-grid'));
+    const items = $$('.reveal').filter((el) => el.closest(
+      '#stats, .stats-section, #contact, #contact-form, .section-contact, .contact-unified-card'
+    ));
     if (!items.length) return;
 
-    const skipExit = (el) => !!el.closest(
-      '#stats, .stats-section, #about, #about-intro, #support, .hero, #home, #bookingModal, .bk-modal, #chatbot, .chatbot'
+    /* Stats enter-once. Contact keeps leave. */
+    const skipExit = (el) => !el.closest(
+      '#contact, #contact-form, .section-contact, .contact-unified-card'
     );
     const onceItems = items.filter(skipExit);
     const exitItems = items.filter((el) => !skipExit(el));
@@ -679,112 +493,9 @@ export function bootPageEffects() {
   }
 
 
-  /* ══════════ 8ب. مسار «من نحن» — الخط والنص معًا ══════════ */
-  function initAboutTimeline() {
-    const section = $('#about-intro') || $('#about');
-    const block = section ? $('[data-timeline]', section) : $('[data-timeline]');
-    if (!section || !block) return;
-
-    const lines = $$('.about-story-line', section).filter((el) => !el.closest('.about-coda'));
-
-    const revealAll = () => {
-      block.style.setProperty('--about-tl', '1');
-      lines.forEach((el) => el.classList.add('is-revealed'));
-    };
-
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      revealAll();
-      return;
-    }
-
-    const fromOf = (el) => {
-      const v = parseFloat(el.getAttribute('data-about-from'));
-      return Number.isFinite(v) ? v : 0;
-    };
-
-    const progressOf = () => {
-      const headerH = parseFloat(getComputedStyle(document.documentElement)
-        .getPropertyValue('--header-measured')) || 72;
-      const rect = section.getBoundingClientRect();
-      const needle = headerH + window.innerHeight * 0.22;
-      const span = rect.height;
-      if (span <= 0) return 0;
-      if (needle <= rect.top) return 0;
-      if (needle >= rect.bottom) return 1;
-      return (needle - rect.top) / span;
-    };
-
-    const apply = (p) => {
-      const clamped = Math.min(1, Math.max(0, p));
-      block.style.setProperty('--about-tl', clamped.toFixed(4));
-      lines.forEach((el) => {
-        if (clamped >= fromOf(el)) el.classList.add('is-revealed');
-      });
-    };
-
-    let inView = false;
-    let ticking = false;
-    const update = () => {
-      ticking = false;
-      const p = progressOf();
-      if (!inView && p <= 0) {
-        block.style.setProperty('--about-tl', '0');
-        return;
-      }
-      apply(p);
-    };
-
-    const onScroll = () => {
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(update);
-      }
-    };
-
-    const io = trackIo(new IntersectionObserver((entries) => {
-      inView = entries.some((entry) => entry.isIntersecting);
-      update();
-    }, {
-      rootMargin: '0px 0px -10% 0px',
-      threshold: [0, 0.08, 0.2, 0.45, 0.75, 1]
-    }));
-
-    io.observe(section);
-    window.addEventListener('scroll', onScroll, { passive: true, signal: homeSignal });
-    window.addEventListener('resize', onScroll, { signal: homeSignal });
-    update();
-  }
-
-
-  /* ══════════ 8ت. دخول كتلة «شريككِ في رحلة التحوّل» عند ظهورها ══════════ */
-  function initAboutCoda() {
-    const coda = $('.about-coda');
-    if (!coda) return;
-
-    const show = () => coda.classList.add('is-in');
-
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      show();
-      return;
-    }
-
-    const io = trackIo(new IntersectionObserver((entries) => {
-      if (!entries.some((entry) => entry.isIntersecting)) return;
-      show();
-      io.disconnect();
-    }, { rootMargin: '0px 0px -10% 0px', threshold: 0.2 }));
-
-    io.observe(coda);
-
-    trackTimeout(setTimeout(() => {
-      if (coda.classList.contains('is-in')) return;
-      const r = coda.getBoundingClientRect();
-      if (r.top < window.innerHeight && r.bottom > 0) show();
-    }, 1200));
-  }
-
-
   /* ══════════ 8.5 مسار ندعمكِ الدائري مع التمرير ══════════ */
+  /* MOTION LOCK — Support orbit path, stage nodes, copy accordion.
+     Desktop pin: intro 0–12%, exit 12–20%, circle timeline 20–100%. */
   function initSupportOrbit() {
     const section = $('#support');
     if (!section) return;
@@ -796,9 +507,9 @@ export function bootPageEffects() {
     const desktopMq = window.matchMedia('(min-width: 960px)');
 
     const THRESH = { 1: 0.04, 2: 0.28, 3: 0.52, 4: 0.76 };
-    const DRAW_AT_VH = 0.72;
-    const DONE_AT_VH = 0.5;
     const CX = 200, CY = 200, RADIUS = 168;
+    const track = $('.support-track', section);
+    const orbit = $('.support-orbit', section);
 
     const placeArrow = (p) => {
       if (!arrow) return;
@@ -812,6 +523,14 @@ export function bootPageEffects() {
       const deg = Math.atan2(Math.cos(a), -Math.sin(a)) * (180 / Math.PI);
       arrow.setAttribute('transform', 'translate(' + x.toFixed(2) + ' ' + y.toFixed(2) + ') rotate(' + deg.toFixed(2) + ')');
       arrow.setAttribute('opacity', '1');
+    };
+
+    const setStages = (intro, introY) => {
+      section.style.setProperty('--support-intro', intro.toFixed(4));
+      section.style.setProperty('--support-intro-y', introY.toFixed(2));
+      section.style.setProperty('--support-orbit', '1');
+      section.classList.toggle('is-orbit-stage', intro < 0.55);
+      if (orbit) orbit.removeAttribute('aria-hidden');
     };
 
     const apply = (p) => {
@@ -840,74 +559,65 @@ export function bootPageEffects() {
       });
     };
 
-    const measure = () => {
-      const vh = window.innerHeight;
-      const visual = center || $('.support-arc', section) || section;
-      const box = visual.getBoundingClientRect();
+    const toStatic = () => {
+      section.classList.add('is-static');
+      section.classList.remove('is-orbit-stage', 'is-head-leaving-up', 'is-head-leaving-down');
+      center?.classList.add('is-in');
+      revealHead();
+      apply(1);
+      setStages(1, 0);
+    };
 
-      /* خارج الشاشة بالكامل → إعادة للحالة الابتدائية لإعادة الحركة عند الدخول */
-      if (box.bottom <= 0 || box.top >= vh) {
-        center?.classList.remove('is-in');
-        apply(0);
-        return;
+    const measurePin = () => {
+      if (!track) return;
+      const vh = window.innerHeight;
+      const box = track.getBoundingClientRect();
+      const range = Math.max(1, box.height - vh);
+      const p = Math.min(1, Math.max(0, -box.top / range));
+
+      let intro = 1;
+      let introY = 0;
+      let drawn = 0;
+
+      if (p <= 0.12) {
+        intro = 1;
+        introY = 0;
+        drawn = 0;
+      } else if (p < 0.20) {
+        const t = (p - 0.12) / 0.08;
+        intro = 1 - t;
+        introY = -28 * t;
+        drawn = t * 0.05;
+      } else {
+        intro = 0;
+        introY = -28;
+        drawn = 0.05 + ((p - 0.20) / 0.80) * 0.95;
       }
 
       center?.classList.add('is-in');
-
-      const cy = box.top + box.height / 2;
-      const startY = vh * DRAW_AT_VH;
-      const endY = vh * DONE_AT_VH;
-      const span = Math.max(1, startY - endY);
-
-      let p = 0;
-      if (cy <= endY) p = 1;
-      else if (cy < startY) p = (startY - cy) / span;
-
-      apply(p);
+      setStages(intro, introY);
+      apply(drawn);
     };
 
-    const head = $('.support-head', section);
     const revealHead = () => {
       section.classList.add('is-headed');
       section.classList.remove('is-head-leaving-up', 'is-head-leaving-down');
     };
-    const leaveHead = (entry) => {
-      if (!section.classList.contains('is-headed') &&
-          !section.classList.contains('is-head-leaving-up') &&
-          !section.classList.contains('is-head-leaving-down')) {
-        return;
-      }
-      const rect = entry.boundingClientRect;
-      const vh = (entry.rootBounds && entry.rootBounds.height) || window.innerHeight;
-      section.classList.remove('is-headed');
-      if (rect.bottom < vh * 0.45) {
-        section.classList.add('is-head-leaving-up');
-        section.classList.remove('is-head-leaving-down');
-      } else {
-        section.classList.add('is-head-leaving-down');
-        section.classList.remove('is-head-leaving-up');
-      }
-    };
 
-    if (reduceMotion) {
-      section.classList.add('is-static');
-      center?.classList.add('is-in');
-      revealHead();
-      apply(1);
+    if (reduceMotion || !desktopMq.matches) {
+      toStatic();
+      desktopMq.addEventListener?.('change', () => {
+        if (reduceMotion || !desktopMq.matches) toStatic();
+        else {
+          section.classList.remove('is-static');
+          measurePin();
+        }
+      }, { signal: homeSignal });
       return;
     }
 
-    if (head && 'IntersectionObserver' in window) {
-      const headIo = trackIo(new IntersectionObserver((entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) revealHead();
-          else leaveHead(e);
-        });
-      }, { threshold: 0.2, rootMargin: '0px 0px -8% 0px' }));
-      headIo.observe(head);
-    } else {
-      revealHead();
-    }
+    section.classList.remove('is-static');
+    revealHead();
 
     let ticking = false;
     const onScroll = () => {
@@ -915,188 +625,19 @@ export function bootPageEffects() {
       ticking = true;
       requestAnimationFrame(() => {
         ticking = false;
-        measure();
+        if (!desktopMq.matches) {
+          toStatic();
+          return;
+        }
+        section.classList.remove('is-static');
+        measurePin();
       });
     };
 
     window.addEventListener('scroll', onScroll, { passive: true, signal: homeSignal });
     window.addEventListener('resize', onScroll, { signal: homeSignal });
     desktopMq.addEventListener?.('change', onScroll, { signal: homeSignal });
-    measure();
-  }
-
-
-  /* ══════════ 8.6 بانر التدريب المنزلي — دخول/خروج المحتوى ══════════ */
-  function initHomeTrainingMotion() {
-    const banner = $('#home-training');
-    const points = $('.home-train-points');
-    if (!banner && !points) return;
-
-    const showAll = () => {
-      banner?.classList.add('is-in-view');
-      banner?.classList.remove('is-leaving');
-      points?.classList.add('is-in-view');
-      points?.classList.remove('is-leaving-up', 'is-leaving-down');
-    };
-
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      showAll();
-      return;
-    }
-
-    if (banner) {
-      const io = trackIo(new IntersectionObserver((entries) => {
-        const entry = entries[0];
-        if (!entry) return;
-        const rect = entry.boundingClientRect;
-        const vh = window.innerHeight;
-
-        if (entry.isIntersecting) {
-          banner.classList.add('is-in-view');
-          banner.classList.remove('is-leaving');
-          return;
-        }
-
-        if (rect.bottom < vh * 0.28) {
-          banner.classList.remove('is-in-view');
-          banner.classList.add('is-leaving');
-        } else if (rect.top > vh * 0.72) {
-          banner.classList.remove('is-in-view', 'is-leaving');
-        }
-      }, {
-        root: null,
-        rootMargin: '-32% 0px -32% 0px',
-        threshold: [0, 0.12, 0.28, 0.45, 0.6, 0.8, 1]
-      }));
-      io.observe(banner);
-    }
-
-    if (points) {
-      const io = trackIo(new IntersectionObserver((entries) => {
-        const entry = entries[0];
-        if (!entry) return;
-        const rect = entry.boundingClientRect;
-        const vh = window.innerHeight;
-
-        if (entry.isIntersecting) {
-          points.classList.add('is-in-view');
-          points.classList.remove('is-leaving-up', 'is-leaving-down');
-          return;
-        }
-
-        if (!points.classList.contains('is-in-view') &&
-            !points.classList.contains('is-leaving-up') &&
-            !points.classList.contains('is-leaving-down')) {
-          return;
-        }
-
-        points.classList.remove('is-in-view');
-        if (rect.bottom < vh * 0.28) {
-          points.classList.add('is-leaving-up');
-          points.classList.remove('is-leaving-down');
-        } else if (rect.top > vh * 0.72) {
-          points.classList.add('is-leaving-down');
-          points.classList.remove('is-leaving-up');
-        }
-      }, {
-        root: null,
-        rootMargin: '0px 0px -10% 0px',
-        threshold: [0, 0.12, 0.28, 0.45, 0.7, 1]
-      }));
-      io.observe(points);
-    }
-  }
-
-
-  /* ══════════ 8.7 منظومة الكاردين — دخول من الجانبين وخروج هادئ ══════════ */
-  function initEcosystemMotion() {
-    const grid = $('#ecosystem .eco-grid');
-    if (!grid) return;
-
-    const show = () => {
-      grid.classList.add('is-in-view');
-      grid.classList.remove('is-leaving');
-    };
-
-    if (reduceMotion || !('IntersectionObserver' in window)) {
-      show();
-      return;
-    }
-
-    const io = trackIo(new IntersectionObserver((entries) => {
-      const entry = entries[0];
-      if (!entry) return;
-      const rect = entry.boundingClientRect;
-      const vh = window.innerHeight;
-
-      if (entry.isIntersecting) {
-        show();
-        return;
-      }
-
-      if (rect.bottom < vh * 0.22) {
-        grid.classList.remove('is-in-view');
-        grid.classList.add('is-leaving');
-      } else if (rect.top > vh * 0.78) {
-        grid.classList.remove('is-in-view', 'is-leaving');
-      }
-    }, {
-      root: null,
-      rootMargin: '0px 0px -16% 0px',
-      threshold: [0, 0.12, 0.28, 0.45, 0.7, 1]
-    }));
-
-    io.observe(grid);
-  }
-
-
-  /* ══════════ 9. تظليل رابط القسم الحالي ══════════ */
-  function initScrollSpy() {
-    const links = $$('.site-nav a[href^="#"]');
-    if (!links.length) return;
-
-    const items = links.map((a) => {
-      const id = (a.hash || '').replace(/^#/, '');
-      const sec = id ? document.getElementById(id) : null;
-      return sec ? { a, sec } : null;
-    }).filter(Boolean);
-    if (!items.length) return;
-
-    let ticking = false;
-    const apply = () => {
-      ticking = false;
-      const line = navScrollOffset();
-      const atEnd = window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 4;
-      let current = items[0];
-      if (atEnd) {
-        current = items[items.length - 1];
-      } else {
-        for (const item of items) {
-          if (item.sec.getBoundingClientRect().top <= line + 1) current = item;
-        }
-      }
-      links.forEach((a) => a.removeAttribute('aria-current'));
-      current.a.setAttribute('aria-current', 'true');
-    };
-
-    const onScroll = () => {
-      if (ticking) return;
-      ticking = true;
-      requestAnimationFrame(apply);
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    apply();
-  }
-
-  function initHashLanding() {
-    const id = location.hash.replace(/^#/, '');
-    if (!id) return;
-    const el = document.getElementById(id);
-    if (!el) return;
-    const jump = () => scrollToNavTarget(el, true);
-    jump();
-    requestAnimationFrame(jump);
+    measurePin();
   }
 
 
@@ -1113,6 +654,7 @@ export function bootPageEffects() {
     const sourceEl = $('#cSource', form);
     const timeEl = $('#cTime', form);
     const consentEl = $('#cConsent', form);
+    let submitting = false;
 
     const isOther = () => val('#cSource') === 'أخرى';
 
@@ -1241,7 +783,7 @@ export function bootPageEffects() {
 
     function syncSubmit() {
       if (!submit) return;
-      const ready = inspect().length === 0;
+      const ready = !submitting && inspect().length === 0;
       submit.disabled = !ready;
       submit.setAttribute('aria-disabled', ready ? 'false' : 'true');
     }
@@ -1279,6 +821,7 @@ export function bootPageEffects() {
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
+      if (submitting) return;
       syncOther();
 
       const bad = validate();
@@ -1288,35 +831,72 @@ export function bootPageEffects() {
         syncSubmit();
         return;
       }
-
-      const data = collect();
-
-      if (!FORM.endpoint) {
-        const url = waWith(buildMessage(data));
-        say('جارٍ فتح واتساب لإرسال طلبِك…', 'ok');
-        const win = window.open(url, '_blank', 'noopener');
-        if (!win) window.location.href = url;
+      if (!consentEl?.checked) {
+        say('يلزم الموافقة على التواصل لإرسال الطلب.', 'err');
+        syncSubmit();
         return;
       }
 
+      const data = collect();
+      submitting = true;
       submit.disabled = true;
       submit.setAttribute('aria-disabled', 'true');
       say('جارٍ الإرسال…');
       try {
-        const res = await fetch(FORM.endpoint, {
-          method : 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body   : JSON.stringify(data)
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const payload = {
+          full_name: data.name,
+          phone: data.phone,
+          weight: String(data.weight),
+          height: String(data.height),
+          goal: data.goal,
+          knowledge_source: data.source,
+          preferred_contact_time: data.time,
+          consent: true,
+        };
+        if (data.message) payload.message = data.message;
+
+        const res = await createContactRequest(payload);
         form.reset();
         syncOther();
         syncFilledAll();
         paintErrors([]);
-        say('تم استلام طلبِك ✓ سنتواصل معكِ قريبًا.', 'ok');
+        const okMsg = (res && typeof res.message === 'string' && res.message.trim())
+          ? res.message.trim()
+          : 'تم استلام طلبِك ✓ سيتواصل معكِ الفريق قريبًا.';
+        say(okMsg, 'ok');
       } catch (err) {
-        say('تعذّر الإرسال. تواصلي معنا عبر واتساب أو الهاتف.', 'err');
+        if (err instanceof PublicApiError && err.status === 422) {
+          say(err.message || 'تحقق من الحقول المطلوبة ثم أعيدي المحاولة.', 'err');
+          if (err.errors && typeof err.errors === 'object') {
+            const map = {
+              full_name: 'cName',
+              phone: 'cPhone',
+              weight: 'cWeight',
+              height: 'cHeight',
+              goal: 'goal',
+              knowledge_source: 'source',
+              preferred_contact_time: 'time',
+              consent: 'consent',
+            };
+            Object.entries(err.errors).forEach(([apiKey, msgs]) => {
+              const key = map[apiKey];
+              if (!key) return;
+              const msg = Array.isArray(msgs) ? msgs[0] : msgs;
+              if (!msg) return;
+              setErr(key, String(msg));
+              mark($(FIELD_IDS[key], form), true);
+            });
+          }
+        } else {
+          say(
+            err instanceof PublicApiError
+              ? err.message
+              : 'تعذّر الإرسال. حاولِي مرة أخرى بعد قليل.',
+            'err',
+          );
+        }
       } finally {
+        submitting = false;
         syncSubmit();
       }
     });
@@ -1629,179 +1209,14 @@ export function bootPageEffects() {
   /* ══════════ 11. الأزرار العائمة ══════════ */
   function initToTop() {
     const topBtn = $('#toTop');
-    const waBtn = $('#fabWhatsapp');
-    const chatBtn = $('#chatbotOpen');
-    if (!topBtn && !waBtn && !chatBtn) return;
-    if (topBtn?.dataset.bound === '1') return;
-    if (topBtn) topBtn.dataset.bound = '1';
-    let ticking = false;
+    if (!topBtn) return;
+    if (topBtn.dataset.bound === '1') return;
+    topBtn.dataset.bound = '1';
 
-    const update = () => {
-      const y = window.scrollY;
-      const hideNearHero = document.body.classList.contains('page-syj') ? false : y < 40;
-      if (topBtn) topBtn.hidden = y < 700;
-      if (waBtn) waBtn.hidden = hideNearHero;
-      if (chatBtn) {
-        const wasVisible = !chatBtn.hidden;
-        chatBtn.hidden = hideNearHero;
-        if (hideNearHero && wasVisible) {
-          window.dispatchEvent(new Event('lam:close-chatbot'));
-        }
-      }
-      ticking = false;
-    };
-    update();
-    window.addEventListener('scroll', () => {
-      if (!ticking) { ticking = true; window.requestAnimationFrame(update); }
-    }, { passive: true });
-
-    topBtn?.addEventListener('click', () => {
+    topBtn.addEventListener('click', () => {
       window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
       $('.brand')?.focus();
     });
-  }
-
-
-  /* ══════════ 11ب. Chatbot FAQ (أسئلة ثابتة) ══════════ */
-  function initChatbot() {
-    const root = $('#chatbot');
-    const openBtn = $('#chatbotOpen');
-    const thread = $('#chatbotThread');
-    const panel = root && $('.chatbot-panel', root);
-    if (!root || !openBtn || !thread || !panel) return;
-    if (root.dataset.bound === '1') return;
-    root.dataset.bound = '1';
-    if (!Array.isArray(CHAT_FAQ) || !CHAT_FAQ.length) {
-      openBtn.hidden = true;
-      return;
-    }
-
-    let open = false;
-    let busy = false;
-    let lastFocus = null;
-    let answerTimer = 0;
-
-    const WELCOME = 'أهلًا بكِ 🤍 كيف يمكنني مساعدتكِ اليوم؟';
-
-    const scrollEnd = () => {
-      thread.scrollTop = thread.scrollHeight;
-    };
-
-    const addBubble = (text, kind) => {
-      const el = document.createElement('div');
-      el.className = 'chat-bubble chat-bubble--' + kind;
-      el.textContent = text;
-      thread.appendChild(el);
-      scrollEnd();
-      return el;
-    };
-
-    const clearReplies = () => {
-      $$('.chat-replies, .chat-again', thread).forEach((n) => n.remove());
-    };
-
-    const showQuestions = () => {
-      clearReplies();
-      const wrap = document.createElement('div');
-      wrap.className = 'chat-replies';
-      wrap.setAttribute('role', 'group');
-      wrap.setAttribute('aria-label', 'أسئلة شائعة');
-
-      CHAT_FAQ.forEach((item, idx) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'chat-reply';
-        btn.textContent = item.q;
-        btn.dataset.faq = String(idx);
-        btn.addEventListener('click', () => onAsk(item, btn));
-        wrap.appendChild(btn);
-      });
-
-      thread.appendChild(wrap);
-      scrollEnd();
-    };
-
-    const showAgain = () => {
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'chat-again';
-      btn.textContent = 'سؤال آخر';
-      btn.addEventListener('click', () => {
-        btn.remove();
-        showQuestions();
-      });
-      thread.appendChild(btn);
-      scrollEnd();
-    };
-
-    const onAsk = (item, btn) => {
-      if (busy) return;
-      busy = true;
-      $$('.chat-reply', thread).forEach((b) => { b.disabled = true; });
-      clearReplies();
-      addBubble(item.q, 'user');
-
-      window.clearTimeout(answerTimer);
-      const delay = reduceMotion ? 0 : 300;
-      answerTimer = window.setTimeout(() => {
-        addBubble(item.a, 'bot');
-        showAgain();
-        busy = false;
-      }, delay);
-    };
-
-    const resetThread = () => {
-      window.clearTimeout(answerTimer);
-      busy = false;
-      thread.replaceChildren();
-      addBubble(WELCOME, 'bot');
-      showQuestions();
-    };
-
-    const setOpen = (next) => {
-      if (next === open) return;
-      if (next && document.body.classList.contains('is-bk-open')) return;
-      open = next;
-      openBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
-      document.body.classList.toggle('is-chat-open', open);
-
-      if (open) {
-        lastFocus = document.activeElement;
-        resetThread();
-        root.hidden = false;
-        root.setAttribute('aria-hidden', 'false');
-        requestAnimationFrame(() => {
-          root.classList.add('is-open');
-          panel.focus({ preventScroll: true });
-        });
-      } else {
-        root.classList.remove('is-open');
-        const finish = () => {
-          if (open) return;
-          root.hidden = true;
-          root.setAttribute('aria-hidden', 'true');
-          if (lastFocus && typeof lastFocus.focus === 'function') {
-            lastFocus.focus({ preventScroll: true });
-          }
-        };
-        if (reduceMotion) finish();
-        else window.setTimeout(finish, 280);
-      }
-    };
-
-    openBtn.addEventListener('click', () => setOpen(!open));
-    root.addEventListener('click', (e) => {
-      if (e.target && e.target.closest('[data-chat-close]')) setOpen(false);
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && open && !document.body.classList.contains('is-bk-open')) {
-        e.preventDefault();
-        setOpen(false);
-      }
-    });
-
-    window.addEventListener('lam:close-chatbot', () => setOpen(false));
   }
 
 
@@ -1817,7 +1232,7 @@ export function bootPageEffects() {
     const TOTAL = 5;
     const RIYADH = { lat: 24.7136, lng: 46.6753 };
     const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-    const SLOT_LABELS = { '10:00': '10:00 ص', '12:00': '12:00 م', '16:00': '4:00 م', '18:00': '6:00 م' };
+    const DEFAULT_LOCATION = 'صلاح الدين - الرياض';
 
     const dialog = $('.bk-modal-dialog', modal);
     const panels = $$('[data-bk-step]', form);
@@ -1845,20 +1260,40 @@ export function bootPageEffects() {
     const calNext = $('#bkCalNext', form);
     const slotsWrap = $('#bkSlots', form);
     const slotsList = $('#bkSlotsList', form);
+    const slotsStatus = $('#bkSlotsStatus', form);
+    const slotsRetry = $('#bkSlotsRetry', form);
     const dateEl = $('#bkDate', form);
     const slotEl = $('#bkSlot', form);
 
     let step = 1;
     let lastFocus = null;
     let open = false;
+    let leaving = false;
     let map = null;
     let marker = null;
     let pendingLatLng = null;
+    let slotsAbort = null;
+    let slotsRequestToken = 0;
+    let submitting = false;
+    let closeTimer = 0;
     let calCursor = new Date();
     calCursor.setDate(1);
     calCursor.setHours(0, 0, 0, 0);
 
     const val = (sel) => ($(sel, form)?.value || '').trim();
+    /* Published evaluation site key for slots/bookings — never the map geocode label. */
+    const bookingLocation = () => DEFAULT_LOCATION;
+
+    const formatSlotLabel = (raw) => {
+      const m = String(raw || '').match(/^(\d{1,2}):(\d{2})$/);
+      if (!m) return String(raw || '');
+      let h = Number(m[1]);
+      const min = m[2];
+      const period = h < 12 ? 'ص' : 'م';
+      let h12 = h % 12;
+      if (h12 === 0) h12 = 12;
+      return String(h12).padStart(2, '0') + ':' + min + ' ' + period;
+    };
 
     const phoneOk = (raw) => {
       const digits = String(raw || '').replace(/\D/g, '');
@@ -1958,6 +1393,9 @@ export function bootPageEffects() {
       if (addressEl) addressEl.value = addr;
       setErr('bkLocation', '');
       showLocateDone();
+      clearSelectedSlot();
+      const date = bookingDate();
+      if (date) loadSlots(date);
     }
 
     async function ensureMap() {
@@ -2025,6 +1463,9 @@ export function bootPageEffects() {
       if (addressEl) addressEl.value = '';
       pendingLatLng = null;
       showLocateIdle();
+      clearSelectedSlot();
+      const date = bookingDate();
+      if (date) loadSlots(date);
     }
 
     function todayStart() {
@@ -2037,6 +1478,14 @@ export function bootPageEffects() {
       const m = String(d.getMonth() + 1).padStart(2, '0');
       const day = String(d.getDate()).padStart(2, '0');
       return y + '-' + m + '-' + day;
+    }
+    function bookingDate(iso) {
+      return normalizeIsoDate(iso ?? val('#bkDate'));
+    }
+    function slotsResultStillCurrent(token, date, location) {
+      return token === slotsRequestToken
+        && bookingDate() === date
+        && bookingLocation() === location;
     }
     function formatDateAr(iso) {
       if (!iso) return '';
@@ -2051,7 +1500,7 @@ export function bootPageEffects() {
       calMonthEl.textContent = MONTHS_AR[month] + ' ' + toAr(year);
       const firstDow = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-      const selected = val('#bkDate');
+      const selected = bookingDate();
       const today = todayStart();
       const frag = document.createDocumentFragment();
       for (let i = 0; i < firstDow; i++) {
@@ -2084,18 +1533,100 @@ export function bootPageEffects() {
     }
 
     function selectDate(iso) {
-      if (dateEl) dateEl.value = iso;
-      if (slotEl) slotEl.value = '';
-      $$('.bk-slot', form).forEach((b) => b.classList.remove('is-on'));
-      if (slotsWrap) slotsWrap.hidden = false;
+      const date = normalizeIsoDate(iso);
+      if (!date) return;
+      if (dateEl) dateEl.value = date;
+      clearSelectedSlot();
       setErr('bkAppt', '');
       paintCalendar();
+      loadSlots(date);
     }
 
     function selectSlot(value) {
       if (slotEl) slotEl.value = value;
       $$('.bk-slot', form).forEach((b) => b.classList.toggle('is-on', b.dataset.slot === value));
       setErr('bkAppt', '');
+    }
+
+    function clearSelectedSlot() {
+      if (slotEl) slotEl.value = '';
+      $$('.bk-slot', form).forEach((b) => b.classList.remove('is-on'));
+    }
+
+    function setSlotsStatus(msg, kind) {
+      if (!slotsStatus) return;
+      if (!msg) {
+        slotsStatus.hidden = true;
+        slotsStatus.textContent = '';
+        slotsStatus.classList.remove('is-err');
+        return;
+      }
+      slotsStatus.hidden = false;
+      slotsStatus.textContent = msg;
+      slotsStatus.classList.toggle('is-err', kind === 'err');
+    }
+
+    function renderSlotButtons(slots) {
+      if (!slotsList) return;
+      const frag = document.createDocumentFragment();
+      slots.forEach((slot) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'bk-slot';
+        btn.dataset.slot = slot;
+        btn.textContent = formatSlotLabel(slot);
+        if (val('#bkSlot') === slot) btn.classList.add('is-on');
+        frag.appendChild(btn);
+      });
+      slotsList.replaceChildren(frag);
+    }
+
+    async function loadSlots(requestedDate) {
+      const date = bookingDate(requestedDate);
+      if (!date) {
+        if (slotsWrap) slotsWrap.hidden = true;
+        if (slotsList) slotsList.replaceChildren();
+        if (slotsRetry) slotsRetry.hidden = true;
+        setSlotsStatus('');
+        return;
+      }
+
+      if (dateEl && dateEl.value !== date) dateEl.value = date;
+
+      if (slotsWrap) slotsWrap.hidden = false;
+      if (slotsRetry) slotsRetry.hidden = true;
+      if (slotsList) slotsList.replaceChildren();
+      setSlotsStatus('جارٍ تحميل الأوقات المتاحة…');
+
+      if (slotsAbort) slotsAbort.abort();
+      slotsAbort = new AbortController();
+      const token = ++slotsRequestToken;
+      const location = bookingLocation();
+
+      try {
+        const slots = await getEvaluationSlots({
+          location,
+          date,
+          signal: slotsAbort.signal,
+        });
+        if (!slotsResultStillCurrent(token, date, location)) return;
+        if (!slots.length) {
+          setSlotsStatus('لا توجد مواعيد متاحة لهذا اليوم، اختاري تاريخًا آخر.');
+          return;
+        }
+        setSlotsStatus('');
+        renderSlotButtons(slots);
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+        if (!slotsResultStillCurrent(token, date, location)) return;
+        setSlotsStatus(
+          err instanceof PublicApiError
+            ? err.message
+            : 'تعذّر جلب الأوقات المتاحة. حاولِي مرة أخرى.',
+          'err',
+        );
+        if (slotsRetry) slotsRetry.hidden = false;
+      }
     }
 
     function collect() {
@@ -2108,9 +1639,10 @@ export function bootPageEffects() {
         lat: val('#bkLat'),
         lng: val('#bkLng'),
         address: val('#bkAddress'),
+        location: bookingLocation(),
         date: val('#bkDate'),
         slot: val('#bkSlot'),
-        slotLabel: SLOT_LABELS[val('#bkSlot')] || val('#bkSlot'),
+        slotLabel: formatSlotLabel(val('#bkSlot')),
         consent: consentEl?.checked === true
       };
     }
@@ -2214,8 +1746,14 @@ export function bootPageEffects() {
       if (step === 3) syncLocateUi();
       if (step === 4) {
         paintCalendar();
-        if (slotsWrap) slotsWrap.hidden = !val('#bkDate');
-        $$('.bk-slot', form).forEach((b) => b.classList.toggle('is-on', b.dataset.slot === val('#bkSlot')));
+        const date = bookingDate();
+        if (date) loadSlots(date);
+        else {
+          if (slotsWrap) slotsWrap.hidden = true;
+          if (slotsList) slotsList.replaceChildren();
+          setSlotsStatus('');
+          if (slotsRetry) slotsRetry.hidden = true;
+        }
       }
       if (step === 5) paintReview();
       syncSend();
@@ -2242,43 +1780,63 @@ export function bootPageEffects() {
     }
 
     function resetBookingExtras() {
-      clearLocation();
+      if (slotsAbort) {
+        slotsAbort.abort();
+        slotsAbort = null;
+      }
+      slotsRequestToken += 1;
+      if (latEl) latEl.value = '';
+      if (lngEl) lngEl.value = '';
+      if (addressEl) addressEl.value = '';
+      pendingLatLng = null;
+      showLocateIdle();
       if (dateEl) dateEl.value = '';
-      if (slotEl) slotEl.value = '';
+      clearSelectedSlot();
       if (slotsWrap) slotsWrap.hidden = true;
-      $$('.bk-slot', form).forEach((b) => b.classList.remove('is-on'));
+      if (slotsList) slotsList.replaceChildren();
+      setSlotsStatus('');
+      if (slotsRetry) slotsRetry.hidden = true;
       calCursor = new Date();
       calCursor.setDate(1);
       calCursor.setHours(0, 0, 0, 0);
     }
 
     function openModal() {
-      if (open) return;
+      if (open && !leaving) return;
       open = true;
+      leaving = false;
+      window.clearTimeout(closeTimer);
       window.dispatchEvent(new Event('lam:close-chatbot'));
       lastFocus = document.activeElement;
       step = 1;
+      submitting = false;
       showStep();
       syncFilledAll();
-      modal.hidden = false;
-      modal.setAttribute('aria-hidden', 'false');
       document.body.classList.add('is-bk-open');
       window.dispatchEvent(new Event('lam:booking-opened'));
       requestAnimationFrame(() => {
+        if (!open || leaving) return;
         (dialog || modal).focus({ preventScroll: true });
         $('#bkName', form)?.focus({ preventScroll: true });
       });
     }
 
     function closeModal() {
-      if (!open) return;
-      open = false;
-      modal.hidden = true;
-      modal.setAttribute('aria-hidden', 'true');
+      if (!open || leaving) return;
+      leaving = true;
+      window.clearTimeout(closeTimer);
+      submitting = false;
       document.body.classList.remove('is-bk-open');
       window.dispatchEvent(new Event('lam:booking-closed'));
-      say('');
-      if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus({ preventScroll: true });
+      const finish = () => {
+        if (!leaving) return;
+        leaving = false;
+        open = false;
+        say('');
+        if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus({ preventScroll: true });
+      };
+      if (reduceMotion) finish();
+      else closeTimer = window.setTimeout(finish, 320);
     }
 
     window.__lamOpenBooking = openModal;
@@ -2333,6 +1891,10 @@ export function bootPageEffects() {
       calCursor.setMonth(calCursor.getMonth() + 1);
       paintCalendar();
     });
+    slotsRetry?.addEventListener('click', () => {
+      const date = bookingDate();
+      if (date) loadSlots(date);
+    });
     slotsList?.addEventListener('click', (e) => {
       const btn = e.target.closest('.bk-slot');
       if (!btn || !btn.dataset.slot) return;
@@ -2340,11 +1902,12 @@ export function bootPageEffects() {
     });
 
     backBtn?.addEventListener('click', () => {
-      if (step <= 1) return;
+      if (step <= 1 || submitting) return;
       step -= 1;
       showStep();
     });
     nextBtn?.addEventListener('click', () => {
+      if (submitting) return;
       const bad = validateStep(step);
       if (bad) {
         if (typeof bad.focus === 'function') bad.focus({ preventScroll: false });
@@ -2357,7 +1920,7 @@ export function bootPageEffects() {
 
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
-      if (step !== TOTAL) return;
+      if (step !== TOTAL || submitting) return;
       const bad = validateStep(TOTAL);
       if (bad) {
         say('يلزم الموافقة على التواصل قبل إرسال الطلب.', 'err');
@@ -2365,33 +1928,54 @@ export function bootPageEffects() {
         syncSend();
         return;
       }
-      const data = collect();
-      if (!FORM.endpoint) {
-        const url = waWith(buildMessage(data));
-        say('جارٍ فتح واتساب لإرسال طلبِك…', 'ok');
-        const win = window.open(url, '_blank', 'noopener');
-        if (!win) window.location.href = url;
+      if (!consentEl?.checked) {
+        say('يلزم الموافقة على التواصل قبل إرسال الطلب.', 'err');
+        syncSend();
         return;
       }
+
+      const data = collect();
+      submitting = true;
       sendBtn.disabled = true;
       sendBtn.setAttribute('aria-disabled', 'true');
       say('جارٍ الإرسال…');
       try {
-        const res = await fetch(FORM.endpoint, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-          body: JSON.stringify({ ...data, origin: 'booking-modal' })
+        const res = await createEvaluationBooking({
+          full_name: data.name,
+          phone: data.phone,
+          weight: String(data.weight),
+          height: String(data.height),
+          goal: data.goal,
+          location: data.location,
+          date: data.date,
+          time: data.slot,
+          consent: true,
         });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
         form.reset();
         resetBookingExtras();
         step = 1;
         syncFilledAll();
         showStep();
-        say('تم استلام طلبِك ✓ سنتواصل معكِ قريبًا.', 'ok');
+        const okMsg = (res && typeof res.message === 'string' && res.message.trim())
+          ? res.message.trim()
+          : 'تم استلام طلب الحجز وسيتواصل الفريق للتأكيد.';
+        say(okMsg, 'ok');
+        closeTimer = window.setTimeout(() => {
+          closeModal();
+        }, 2200);
       } catch (err) {
-        say('تعذّر الإرسال. تواصلي معنا عبر واتساب أو الهاتف.', 'err');
+        if (err instanceof PublicApiError && err.status === 422) {
+          say(err.message || 'تحقق من الحقول المطلوبة ثم أعيدي المحاولة.', 'err');
+        } else {
+          say(
+            err instanceof PublicApiError
+              ? err.message
+              : 'تعذّر الإرسال. حاولِي مرة أخرى بعد قليل.',
+            'err',
+          );
+        }
       } finally {
+        submitting = false;
         syncSend();
       }
     });
@@ -2439,7 +2023,6 @@ export function bootPageEffects() {
     initLang();
     initBookingModal();
     initToTop();
-    initChatbot();
   }
 
   function bootHome() {
@@ -2452,12 +2035,7 @@ export function bootPageEffects() {
     initStatsParallax();
     initContactParallax();
     initReveal();
-    initAboutTimeline();
-    initAboutCoda();
     initSupportOrbit();
-    initHomeTrainingMotion();
-    initEcosystemMotion();
-    initHashLanding();
     initContactForm();
   }
 

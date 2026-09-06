@@ -1,14 +1,54 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, m, useReducedMotion } from 'framer-motion';
 import { Link, useSearchParams } from 'react-router-dom';
 import { GOALS, goalLabel, normalizeGoal, storiesFor } from '../data/stories.js';
+import { useFinePointer } from '../motion/pointer.js';
+import { dur, easeOut, easeUi, tween } from '../motion/tokens.js';
+
+function StoryCard({ item, onOpen, reduce, fine }) {
+  const [hov, setHov] = useState(false);
+  const lift = Boolean(fine && !reduce && hov);
+
+  return (
+    <m.article
+      className="sp-card"
+      tabIndex={0}
+      role="button"
+      aria-label={`اقرئي قصة ${item.name}`}
+      onClick={() => onOpen(item.id)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onOpen(item.id);
+        }
+      }}
+      initial={false}
+      animate={{ y: lift ? -2 : 0 }}
+      transition={tween(reduce ? 0 : dur.hover, easeUi)}
+      onHoverStart={() => setHov(true)}
+      onHoverEnd={() => setHov(false)}
+      onFocus={() => setHov(true)}
+      onBlur={() => setHov(false)}
+    >
+      <div className="sp-card-top">
+        <p className="sp-card-name">{item.name}، {item.age} سنة</p>
+        <span className="sp-card-tag">{goalLabel(item.goal)}</span>
+      </div>
+      <p className="sp-card-excerpt">{item.excerpt}</p>
+      <div className="sp-card-foot">
+        <span className="sp-card-duration">{item.duration}</span>
+        <span className="sp-card-more">اقرئي قصتها <svg className="ico" aria-hidden="true"><use href="#i-arrow"></use></svg></span>
+      </div>
+    </m.article>
+  );
+}
 
 export default function StoriesPage({ onOpenBooking }) {
   const [params, setParams] = useSearchParams();
   const current = normalizeGoal(params.get('goal'));
   const [modalIndex, setModalIndex] = useState(-1);
-  const [busy, setBusy] = useState(false);
-  const [panelClass, setPanelClass] = useState('');
-  const animTimer = useRef(0);
+  const reduce = useReducedMotion();
+  const fine = useFinePointer();
 
   const queue = useMemo(() => storiesFor(current).slice(0, 6), [current]);
   const goal = GOALS[current] || GOALS.all;
@@ -28,33 +68,16 @@ export default function StoriesPage({ onOpenBooking }) {
     if (i >= 0) setModalIndex(i);
   };
 
-  const go = (delta) => {
-    if (busy || modalIndex < 0) return;
-    const next = modalIndex + delta;
-    if (next < 0 || next >= queue.length) return;
-    setBusy(true);
-    setPanelClass(delta > 0 ? 'is-leave-next' : 'is-leave-prev');
-    window.clearTimeout(animTimer.current);
-    animTimer.current = window.setTimeout(() => {
-      setModalIndex(next);
-      setPanelClass(delta > 0 ? 'is-enter-next' : 'is-enter-prev');
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          setPanelClass('');
-          setBusy(false);
-        });
-      });
-    }, 180);
-  };
+  const go = useCallback((delta) => {
+    setModalIndex((i) => {
+      if (i < 0) return i;
+      const next = i + delta;
+      if (next < 0 || next >= queue.length) return i;
+      return next;
+    });
+  }, [queue.length]);
 
-  const closeModal = () => {
-    window.clearTimeout(animTimer.current);
-    setModalIndex(-1);
-    setPanelClass('');
-    setBusy(false);
-  };
-
-  useEffect(() => () => window.clearTimeout(animTimer.current), []);
+  const closeModal = () => setModalIndex(-1);
 
   useEffect(() => {
     document.documentElement.classList.toggle('is-sp-modal-open', modalIndex >= 0);
@@ -79,7 +102,7 @@ export default function StoriesPage({ onOpenBooking }) {
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [modalIndex, busy, queue.length]);
+  }, [modalIndex, go]);
 
   return (
     <main id="main">
@@ -106,15 +129,17 @@ export default function StoriesPage({ onOpenBooking }) {
         <div className="shell sp-filters-wrap">
           <div className="sp-filters" id="spFilters" role="toolbar" aria-label="فلاتر القصص">
             {Object.keys(GOALS).map((id) => (
-              <button
+              <m.button
                 key={id}
                 type="button"
                 className={'sp-pill' + (id === current ? ' is-active' : '')}
                 aria-pressed={id === current ? 'true' : 'false'}
                 onClick={() => setGoal(id)}
+                whileTap={reduce ? undefined : { scale: 0.99 }}
+                transition={tween(reduce ? 0 : dur.tap, easeUi)}
               >
                 {GOALS[id].label}
-              </button>
+              </m.button>
             ))}
           </div>
         </div>
@@ -133,96 +158,131 @@ export default function StoriesPage({ onOpenBooking }) {
             </aside>
 
             <div className="sp-content">
-              <div className="sp-list" hidden={queue.length === 0} aria-live="polite">
-                {queue.map((item) => (
-                  <article
-                    key={item.id}
-                    className="sp-card"
-                    tabIndex={0}
-                    role="button"
-                    aria-label={`اقرئي قصة ${item.name}`}
-                    onClick={() => openStory(item.id)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        openStory(item.id);
-                      }
-                    }}
+              <AnimatePresence mode="wait">
+                {queue.length === 0 ? (
+                  <m.div
+                    key="empty"
+                    className="sp-empty"
+                    initial={reduce ? false : { opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={tween(reduce ? 0 : dur.modalSwap, easeUi)}
                   >
-                    <div className="sp-card-top">
-                      <p className="sp-card-name">{item.name}، {item.age} سنة</p>
-                      <span className="sp-card-tag">{goalLabel(item.goal)}</span>
-                    </div>
-                    <p className="sp-card-excerpt">{item.excerpt}</p>
-                    <div className="sp-card-foot">
-                      <span className="sp-card-duration">{item.duration}</span>
-                      <span className="sp-card-more">اقرئي قصتها <svg className="ico" aria-hidden="true"><use href="#i-arrow"></use></svg></span>
-                    </div>
-                  </article>
-                ))}
-              </div>
-              <div className="sp-empty" hidden={queue.length !== 0}>
-                <p>قريبًا ستجدين قصصًا ملهمة لهذا الهدف 🤍</p>
-                <button className="btn btn-primary" type="button" onClick={() => setGoal('all')}>شاهدي كل القصص</button>
-              </div>
+                    <p>قريبًا ستجدين قصصًا ملهمة لهذا الهدف 🤍</p>
+                    <button className="btn btn-primary" type="button" onClick={() => setGoal('all')}>شاهدي كل القصص</button>
+                  </m.div>
+                ) : (
+                  <m.div
+                    key={current}
+                    className="sp-list"
+                    aria-live="polite"
+                    initial={reduce ? false : { opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    transition={tween(reduce ? 0 : dur.modalSwap, easeUi)}
+                  >
+                    {queue.map((item) => (
+                      <StoryCard key={item.id} item={item} onOpen={openStory} reduce={reduce} fine={fine} />
+                    ))}
+                  </m.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
       </section>
 
-      <div className="sp-modal" hidden={!story} aria-hidden={story ? 'false' : 'true'}>
-        <div className="sp-modal-backdrop" tabIndex={-1} onClick={closeModal}></div>
-        <div className="sp-modal-shell">
-          <button className="sp-modal-nav sp-modal-prev" type="button" aria-label="القصة السابقة" disabled={modalIndex <= 0} onClick={() => go(-1)}>
-            <svg className="ico" aria-hidden="true"><use href="#i-arrow"></use></svg>
-          </button>
-          <div className="sp-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="spModalTitle" tabIndex={-1}>
-            <button className="sp-modal-close" type="button" aria-label="إغلاق" onClick={closeModal}>
-              <svg className="ico" aria-hidden="true"><use href="#i-close"></use></svg>
-            </button>
-            <div className="sp-modal-scroll">
-              {story && (
-                <div className={'sp-modal-panel ' + panelClass} id="spModalPanel">
-                  <p className="sp-modal-index" id="spModalTitle">{modalIndex + 1} من {queue.length} قصص</p>
-                  <div className="sp-modal-media">
-                    <img src={story.image} alt="" width="760" height="420" loading="lazy" />
-                  </div>
-                  <div className="sp-modal-nav-mobile" aria-label="التنقل بين القصص">
-                    <button className="sp-modal-nav sp-modal-nav-m" type="button" aria-label="القصة السابقة" disabled={modalIndex <= 0} onClick={() => go(-1)}>
-                      <svg className="ico" aria-hidden="true"><use href="#i-arrow"></use></svg>
-                    </button>
-                    <button className="sp-modal-nav sp-modal-nav-m" type="button" aria-label="القصة التالية" disabled={modalIndex >= queue.length - 1} onClick={() => go(1)}>
-                      <svg className="ico sp-modal-nav-flip" aria-hidden="true"><use href="#i-arrow"></use></svg>
-                    </button>
-                  </div>
-                  <header className="sp-modal-head">
-                    <p className="sp-modal-name">{story.name}، {story.age} سنة</p>
-                    <span className="sp-card-tag">{goalLabel(story.goal)}</span>
-                  </header>
-                  <div className="sp-modal-story">
-                    <p>{story.story}</p>
-                  </div>
-                  <section className="sp-modal-metrics" aria-label="رحلتها في أرقام">
-                    <h3>رحلتها في أرقام</h3>
-                    <ul>
-                      <li><span>المدة</span><strong>{story.metrics?.duration || story.duration}</strong></li>
-                      <li><span>الجلسات</span><strong>{story.metrics?.sessions || '—'}</strong></li>
-                      <li><span>المحصلة</span><strong>{story.metrics?.result || '—'}</strong></li>
-                    </ul>
-                  </section>
-                  <button className="btn btn-primary sp-modal-cta" type="button" data-bk-open onClick={onOpenBooking} aria-haspopup="dialog" aria-controls="bookingModal">
-                    ابدئي رحلتكِ المشابهة
-                    <svg className="ico btn-ico" aria-hidden="true"><use href="#i-arrow"></use></svg>
-                  </button>
+      <AnimatePresence>
+        {story && (
+          <m.div
+            className="sp-modal"
+            key="sp-modal"
+            aria-hidden="false"
+            initial={false}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 1 }}
+            transition={{ duration: reduce ? 0 : 0.4 }}
+          >
+            <m.div
+              className="sp-modal-backdrop"
+              tabIndex={-1}
+              onClick={closeModal}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={tween(reduce ? 0 : dur.fade, easeUi)}
+            />
+            <div className="sp-modal-shell">
+              <button className="sp-modal-nav sp-modal-prev" type="button" aria-label="القصة السابقة" disabled={modalIndex <= 0} onClick={() => go(-1)}>
+                <svg className="ico" aria-hidden="true"><use href="#i-arrow"></use></svg>
+              </button>
+              <m.div
+                className="sp-modal-dialog"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="spModalTitle"
+                tabIndex={-1}
+                initial={reduce ? false : { opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 0 }}
+                transition={tween(reduce ? 0 : 0.4, easeOut)}
+              >
+                <button className="sp-modal-close" type="button" aria-label="إغلاق" onClick={closeModal}>
+                  <svg className="ico" aria-hidden="true"><use href="#i-close"></use></svg>
+                </button>
+                <div className="sp-modal-scroll">
+                  <AnimatePresence mode="wait">
+                    <m.div
+                      className="sp-modal-panel"
+                      key={story.id}
+                      id="spModalPanel"
+                      initial={reduce ? false : { opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: 6 }}
+                      transition={tween(reduce ? 0 : dur.modalSwap, easeOut)}
+                    >
+                      <p className="sp-modal-index" id="spModalTitle">{modalIndex + 1} من {queue.length} قصص</p>
+                      <div className="sp-modal-media">
+                        <img src={story.image} alt="" width="760" height="420" loading="lazy" />
+                      </div>
+                      <div className="sp-modal-nav-mobile" aria-label="التنقل بين القصص">
+                        <button className="sp-modal-nav sp-modal-nav-m" type="button" aria-label="القصة السابقة" disabled={modalIndex <= 0} onClick={() => go(-1)}>
+                          <svg className="ico" aria-hidden="true"><use href="#i-arrow"></use></svg>
+                        </button>
+                        <button className="sp-modal-nav sp-modal-nav-m" type="button" aria-label="القصة التالية" disabled={modalIndex >= queue.length - 1} onClick={() => go(1)}>
+                          <svg className="ico sp-modal-nav-flip" aria-hidden="true"><use href="#i-arrow"></use></svg>
+                        </button>
+                      </div>
+                      <header className="sp-modal-head">
+                        <p className="sp-modal-name">{story.name}، {story.age} سنة</p>
+                        <span className="sp-card-tag">{goalLabel(story.goal)}</span>
+                      </header>
+                      <div className="sp-modal-story">
+                        <p>{story.story}</p>
+                      </div>
+                      <section className="sp-modal-metrics" aria-label="رحلتها في أرقام">
+                        <h3>رحلتها في أرقام</h3>
+                        <ul>
+                          <li><span>المدة</span><strong>{story.metrics?.duration || story.duration}</strong></li>
+                          <li><span>الجلسات</span><strong>{story.metrics?.sessions || '—'}</strong></li>
+                          <li><span>المحصلة</span><strong>{story.metrics?.result || '—'}</strong></li>
+                        </ul>
+                      </section>
+                      <button className="btn btn-primary sp-modal-cta" type="button" data-bk-open onClick={onOpenBooking} aria-haspopup="dialog" aria-controls="bookingModal">
+                        ابدئي رحلتكِ المشابهة
+                        <svg className="ico btn-ico" aria-hidden="true"><use href="#i-arrow"></use></svg>
+                      </button>
+                    </m.div>
+                  </AnimatePresence>
                 </div>
-              )}
+              </m.div>
+              <button className="sp-modal-nav sp-modal-next" type="button" aria-label="القصة التالية" disabled={modalIndex >= queue.length - 1} onClick={() => go(1)}>
+                <svg className="ico sp-modal-nav-flip" aria-hidden="true"><use href="#i-arrow"></use></svg>
+              </button>
             </div>
-          </div>
-          <button className="sp-modal-nav sp-modal-next" type="button" aria-label="القصة التالية" disabled={modalIndex >= queue.length - 1} onClick={() => go(1)}>
-            <svg className="ico sp-modal-nav-flip" aria-hidden="true"><use href="#i-arrow"></use></svg>
-          </button>
-        </div>
-      </div>
+          </m.div>
+        )}
+      </AnimatePresence>
     </main>
   );
 }

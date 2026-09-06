@@ -1,3 +1,4 @@
+/** MOTION LOCK: parallax, .contact-unified-card.reveal (including leave-on-exit). */
 export default function Contact() {
   return (
     <>
@@ -23,7 +24,7 @@ export default function Contact() {
               <p className="sec-sub">أخبرينا عن أهدافكِ، وسنصمّم لكِ الخطوة المناسبة</p>
             </header>
 
-            {/* وجهة الإرسال تُضبط من FORM في boot.js (واتساب أو endpoint) */}
+            {/* وجهة الإرسال عبر Public API (VITE_API_BASE_URL) */}
             <form className="contact-form" id="contactForm" noValidate>
 
               <div className="field-row">
