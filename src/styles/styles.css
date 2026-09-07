@@ -457,7 +457,7 @@ em{font-style:normal}
 }
 .header-social a:hover{color:var(--color-brown);opacity:1;background:color-mix(in srgb,var(--color-text-on-dark) 8%,transparent)}
 .header-social .ico{
-  width:22px;height:22px;
+  width:18px;height:18px;
   fill:currentColor;stroke:none;
 }
 .header-social .ico.ico-outline{
@@ -641,6 +641,39 @@ em{font-style:normal}
   .site-header.is-scrolled .header-inner{
     padding-block:.35rem;
     min-height:var(--header-h);
+    /* مناطق ثابتة: شعار | روابط متمركزة في منتصف الشاشة | سوشال+EN */
+    grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);
+  }
+  .site-header.is-scrolled .header-inner > .brand{
+    justify-self:start;
+    z-index:2;
+  }
+  .site-header.is-scrolled .header-inner > .site-nav{
+    justify-self:center;
+    z-index:1;
+    width:max-content;
+    max-width:100%;
+  }
+  .site-header.is-scrolled .header-inner > .header-tools{
+    justify-self:end;
+    z-index:2;
+    margin-left:0;
+  }
+  .site-header.is-scrolled .site-nav ul{
+    width:max-content;
+    max-width:100%;
+    /* سقف الفجوة حتى لا يتسع الشريط مع عرض الشاشة بعد وصول الـ shell للحد الأقصى */
+    gap:clamp(.575rem,.85vw,.75rem);
+  }
+}
+
+@media (min-width:1080px) and (max-width:1199px){
+  /* نفس الشبكة الثلاثية مع مسافة أضيق حتى لا تتداخل الروابط مع السوشال */
+  .site-header.is-scrolled .header-social a{
+    width:28px;height:28px;
+  }
+  .site-header.is-scrolled .site-nav ul{
+    gap:.4rem;
   }
 }
 
@@ -1046,7 +1079,15 @@ body.nav-open .fab{visibility:hidden}
 @media (prefers-reduced-motion:reduce){
   .about-editorial{--about-tl:1}
   .js .about-coda,
-  .js .about-coda-point{opacity:1;translate:none;transition:none}
+  .js .about-coda-head,
+  .js .about-coda-point,
+  .js .about-coda-disk,
+  .js .about-coda-point strong,
+  .js .about-coda-copy{opacity:1;translate:none;transform:none;transition:none}
+  .js .about-coda-dot-core,
+  .js .about-coda-dot-core.is-pulse{
+    opacity:1;transform:none;animation:none;
+  }
 }
 
 .no-js .about-story-line,
@@ -1184,6 +1225,7 @@ body.nav-open .fab{visibility:hidden}
   text-align:center;
   direction:rtl;
   background-color:var(--section-blush);
+  overflow-x:hidden;
 }
 .about-coda-paper{
   position:absolute;inset:0;
@@ -1219,7 +1261,7 @@ body.nav-open .fab{visibility:hidden}
   font-weight:600;
   line-height:1.45;
 }
-.about-coda-trail{position:relative;max-width:1280px;margin:0 auto;width:100%}
+.about-coda-trail{position:relative;max-width:1280px;margin:0 auto;width:100%;min-width:0;overflow-x:hidden}
 .about-coda-line{
   display:none;
   pointer-events:none;
@@ -1278,9 +1320,23 @@ body.nav-open .fab{visibility:hidden}
   width:8px;
   height:8px;
   border-radius:var(--r-pill);
-  background:var(--color-primary);
-  box-shadow:0 0 0 0 rgba(224,174,175,0);
+  background:transparent;
+  box-shadow:none;
   z-index:2;
+  overflow:visible;
+}
+.about-coda-dot-core{
+  display:block;
+  width:8px;
+  height:8px;
+  border-radius:inherit;
+  background:var(--color-primary);
+  transform-origin:center;
+}
+@keyframes coda-dot-in{
+  0%{opacity:0;transform:scale(0)}
+  46%{opacity:1;transform:scale(1.32)}
+  100%{opacity:1;transform:scale(1)}
 }
 .about-coda-point strong{
   color:var(--color-text);
@@ -1297,10 +1353,22 @@ body.nav-open .fab{visibility:hidden}
   max-width:16.5rem;
 }
 .no-js .about-coda,
-.no-js .about-coda-point{
-  opacity:1;translate:none;
+.no-js .about-coda-head,
+.no-js .about-coda-point,
+.no-js .about-coda-disk,
+.no-js .about-coda-dot-core,
+.no-js .about-coda-point strong,
+.no-js .about-coda-copy{
+  opacity:1;translate:none;transform:none;animation:none;
 }
 @media (min-width:900px){
+  .js .about-coda-dot-core{
+    opacity:0;transform:scale(0);
+  }
+  .js .about-coda-dot-core.is-pulse{
+    animation:coda-dot-in .28s cubic-bezier(.16,1,.3,1) both;
+    animation-delay:var(--coda-delay,0s);
+  }
   .about-coda-line{
     display:block;
     position:absolute;
@@ -1332,6 +1400,11 @@ body.nav-open .fab{visibility:hidden}
   .about-coda-point{padding-inline:var(--s-2)}
   .about-coda-disk .ico{width:1.55rem;height:1.55rem}
   .about-coda-copy{max-width:none}
+  .about-coda-dot-core,
+  .js .about-coda-dot-core,
+  .js .about-coda-dot-core.is-pulse{
+    opacity:1;transform:none;animation:none;
+  }
 }
 
 /* ---------- 9.4 نجاحنا بالأرقام ---------- */
@@ -2202,7 +2275,7 @@ body.nav-open .fab{visibility:hidden}
 }
 .journey-copy p{
   margin:0;text-align:start;
-  font-size:var(--fs-body);
+  font-size:calc(var(--fs-body) * 1.11);
   line-height:2;color:var(--color-text-muted);
 }
 @media (min-width:900px){
@@ -3873,7 +3946,13 @@ select.input{appearance:none;background-image:none;cursor:pointer}
 .reveal-fallback .about-deco{opacity:1!important;transform:none!important}
 .reveal-fallback .about-track{height:auto!important}
 .reveal-fallback .about-track .section-about{position:static!important;min-height:0!important}
-.reveal-fallback .about-coda{opacity:1!important;translate:none!important}
+.reveal-fallback .about-coda,
+.reveal-fallback .about-coda-head,
+.reveal-fallback .about-coda-point,
+.reveal-fallback .about-coda-disk,
+.reveal-fallback .about-coda-dot-core,
+.reveal-fallback .about-coda-point strong,
+.reveal-fallback .about-coda-copy{opacity:1!important;translate:none!important;transform:none!important;animation:none!important}
 .reveal-fallback .pin-scroll-cue{display:none!important}
 .reveal-fallback .section-support{
   height:auto!important;padding-block:var(--section-gap) 0!important;
@@ -3928,7 +4007,13 @@ select.input{appearance:none;background-image:none;cursor:pointer}
   .js .about-track{height:auto!important}
   .js .about-track .section-about{position:static!important;min-height:0!important}
   .js .about-coda,
-  .js .about-coda-point{opacity:1!important;translate:none!important}
+  .js .about-coda-head,
+  .js .about-coda-point,
+  .js .about-coda-disk,
+  .js .about-coda-point strong,
+  .js .about-coda-copy{opacity:1!important;translate:none!important;transform:none!important}
+  .js .about-coda-dot-core,
+  .js .about-coda-dot-core.is-pulse{opacity:1!important;transform:none!important;animation:none!important}
   .pin-scroll-cue{display:none!important}
   .pin-scroll-cue.is-pulse .pin-scroll-cue__dot,
   .pin-scroll-cue.is-pulse .pin-scroll-cue__halo{animation:none!important}

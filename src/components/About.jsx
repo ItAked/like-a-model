@@ -71,44 +71,100 @@ const CODA_POINTS = [
 
 /* RTL: starts at the right-hand station and flows left through 12.5 / 37.5 / 62.5 / 87.5. */
 const CODA_LINE = 'M875 20 C790 8 710 32 625 18 C540 6 460 34 375 20 C290 8 210 30 125 20';
-const CODA_LINE_DUR = 0.8;
-const CODA_ITEM_STAGGER = 0.08;
+const CODA_STACK_MQ = '(max-width: 899px)';
+const CODA_TITLE_DUR = 0.32;
+const CODA_PATH_DELAY = 0.18;
+const CODA_PATH_DUR = 0.78;
+const CODA_ICON_DUR = 0.26;
+const CODA_TEXT_DUR = 0.28;
+const CODA_ICON_LAG = 0.05;
+const CODA_TEXT_LAG = 0.08;
+const CODA_STOP_AT = [0, 1 / 3, 2 / 3, 1];
+const CODA_MOBILE_START = 0.18;
+const CODA_MOBILE_STAGGER = 0.18;
+const CODA_MOBILE_DUR = 0.4;
+const CODA_HOVER_Y = -3;
+const CODA_DONE_MS = Math.round((CODA_PATH_DELAY + CODA_PATH_DUR + CODA_TEXT_LAG + CODA_TEXT_DUR) * 1000);
+const CODA_MOBILE_DONE_MS = Math.round((CODA_MOBILE_START + CODA_MOBILE_STAGGER * 3 + CODA_MOBILE_DUR) * 1000);
 
-function CodaPoint({ item, index, show, reduce, fine }) {
-  const [hov, setHov] = useState(false);
-  const glow = Boolean(fine && !reduce && hov);
+function instant() {
+  return tween(0, easeOut);
+}
+
+function useCodaStack() {
+  const [stack, setStack] = useState(() => window.matchMedia(CODA_STACK_MQ).matches);
+  useEffect(() => {
+    const mq = window.matchMedia(CODA_STACK_MQ);
+    const sync = () => setStack(mq.matches);
+    sync();
+    mq.addEventListener('change', sync);
+    return () => mq.removeEventListener('change', sync);
+  }, []);
+  return stack;
+}
+
+function CodaPoint({ item, index, show, reduce, fine, stacked, hoverReady }) {
+  const stopDelay = CODA_PATH_DELAY + CODA_PATH_DUR * CODA_STOP_AT[index];
+  const delay = reduce || !show ? 0 : (stacked
+    ? CODA_MOBILE_START + index * CODA_MOBILE_STAGGER
+    : stopDelay);
+  const lift = Boolean(hoverReady && fine && !reduce);
+  const hide = !show && !reduce;
+  const kidsRest = stacked || reduce;
 
   return (
     <m.li
       className="about-coda-point"
-      initial={false}
-      animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-      transition={{
-        ...tween(reduce ? 0 : 0.48, easeOut),
-        delay: reduce || !show ? 0 : CODA_LINE_DUR * 0.12 + index * CODA_ITEM_STAGGER,
-      }}
-      whileHover={fine && !reduce ? { y: -2, transition: tween(dur.hover, easeUi) } : undefined}
-      onHoverStart={() => setHov(true)}
-      onHoverEnd={() => setHov(false)}
+      style={{ '--coda-delay': `${delay}s` }}
+      initial={stacked && !reduce ? { opacity: 0, y: 12 } : false}
+      animate={stacked
+        ? (hide ? { opacity: 0, y: 12 } : { opacity: 1, y: 0 })
+        : { opacity: 1, y: 0 }}
+      transition={stacked
+        ? { ...tween(reduce ? 0 : CODA_MOBILE_DUR, easeOut), delay }
+        : instant()}
+      whileHover={lift ? { y: CODA_HOVER_Y, transition: tween(dur.hover, easeUi) } : undefined}
     >
       <span className="about-coda-station">
-        <span className="about-coda-disk" aria-hidden="true">
-          <svg className="ico"><use href={item.icon}></use></svg>
-        </span>
         <m.span
-          className="about-coda-dot"
+          className="about-coda-disk"
           aria-hidden="true"
-          initial={false}
-          animate={{
-            boxShadow: glow
-              ? '0 0 14px rgba(224, 174, 175, 0.88)'
-              : '0 0 0 0 rgba(224, 174, 175, 0)',
+          initial={kidsRest ? false : { opacity: 0, scale: 0.88 }}
+          animate={kidsRest || !hide ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.88 }}
+          transition={{
+            ...tween(kidsRest ? 0 : CODA_ICON_DUR, easeOut),
+            delay: kidsRest || hide ? 0 : stopDelay + CODA_ICON_LAG,
           }}
-          transition={tween(reduce ? 0 : dur.hover, easeUi)}
-        />
+        >
+          <svg className="ico"><use href={item.icon}></use></svg>
+        </m.span>
+        <span className="about-coda-dot" aria-hidden="true">
+          <span
+            className={'about-coda-dot-core' + (!kidsRest && show ? ' is-pulse' : '')}
+          />
+        </span>
       </span>
-      <strong>{item.title}</strong>
-      <span className="about-coda-copy">{item.copy}</span>
+      <m.strong
+        initial={kidsRest ? false : { opacity: 0, y: 12 }}
+        animate={kidsRest || !hide ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+        transition={{
+          ...tween(kidsRest ? 0 : CODA_TEXT_DUR, easeOut),
+          delay: kidsRest || hide ? 0 : stopDelay + CODA_TEXT_LAG,
+        }}
+      >
+        {item.title}
+      </m.strong>
+      <m.span
+        className="about-coda-copy"
+        initial={kidsRest ? false : { opacity: 0, y: 12 }}
+        animate={kidsRest || !hide ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+        transition={{
+          ...tween(kidsRest ? 0 : CODA_TEXT_DUR, easeOut),
+          delay: kidsRest || hide ? 0 : stopDelay + CODA_TEXT_LAG,
+        }}
+      >
+        {item.copy}
+      </m.span>
     </m.li>
   );
 }
@@ -117,8 +173,29 @@ function AboutCoda() {
   const ref = useRef(null);
   const reduce = useReducedMotion();
   const fine = useFinePointer();
+  const stacked = useCodaStack();
   const inView = useInView(ref, { once: true, amount: 0.28 });
   const show = Boolean(reduce || inView);
+  const [hoverReady, setHoverReady] = useState(() => Boolean(reduce));
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start end', 'end start'],
+  });
+  const paperY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [7, -7]);
+
+  useEffect(() => {
+    if (reduce) {
+      setHoverReady(true);
+      return undefined;
+    }
+    if (!show) {
+      setHoverReady(false);
+      return undefined;
+    }
+    const ms = stacked ? CODA_MOBILE_DONE_MS : CODA_DONE_MS;
+    const id = window.setTimeout(() => setHoverReady(true), ms);
+    return () => window.clearTimeout(id);
+  }, [reduce, show, stacked]);
 
   return (
     <section
@@ -126,18 +203,24 @@ function AboutCoda() {
       ref={ref}
       aria-label="شريككِ في رحلة التحوّل"
     >
-      <img
+      <m.img
         className="about-coda-paper"
         src={codaPaper}
         alt=""
         aria-hidden="true"
         draggable="false"
+        style={{ y: paperY }}
       />
       <div className="about-coda-inner">
-        <header className="about-coda-head">
-          <p>لسنا مجرد برنامج تدريبي.</p>
-          <p>نحن شريككِ في رحلة التحوّل.</p>
-        </header>
+        <m.header
+          className="about-coda-head"
+          initial={reduce ? false : { opacity: 0, y: 10 }}
+          animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
+          transition={tween(reduce ? 0 : CODA_TITLE_DUR, easeOut)}
+        >
+          <p>لسنا مجرد برنامج تدريبي</p>
+          <p>نحن شريككِ في رحلة التحوّل</p>
+        </m.header>
 
         <div className="about-coda-trail">
           <svg
@@ -155,9 +238,12 @@ function AboutCoda() {
               strokeWidth="1.35"
               strokeLinecap="round"
               vectorEffect="non-scaling-stroke"
-              initial={false}
+              initial={{ pathLength: reduce || stacked ? 1 : 0 }}
               animate={{ pathLength: show ? 1 : 0 }}
-              transition={tween(reduce ? 0 : CODA_LINE_DUR, easeOut)}
+              transition={{
+                ...tween(reduce || stacked ? 0 : CODA_PATH_DUR, easeOut),
+                delay: reduce || stacked || !show ? 0 : CODA_PATH_DELAY,
+              }}
             />
           </svg>
           <ul className="about-coda-points">
@@ -169,6 +255,8 @@ function AboutCoda() {
                 show={show}
                 reduce={Boolean(reduce)}
                 fine={fine}
+                stacked={stacked}
+                hoverReady={hoverReady}
               />
             ))}
           </ul>
