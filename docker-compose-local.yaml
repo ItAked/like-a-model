@@ -1,0 +1,20 @@
+services:
+  like-a-model:
+    image: like-a-model:local
+    build:
+      context: .
+      target: dependencies
+    container_name: like-a-model-local
+    command: npm run dev -- --host 0.0.0.0
+    ports:
+      - "${LOCAL_APP_PORT:-3007}:5173"
+    environment:
+      NODE_ENV: development
+      VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8014}
+    volumes:
+      - .:/src/app
+      - node_modules:/src/app/node_modules
+    init: true
+
+volumes:
+  node_modules:

@@ -1,0 +1,12 @@
+services:
+  like-a-model:
+    image: ghcr.io/itaked/like-a-model:latest
+    build:
+      context: .
+      target: production
+      args:
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-}
+    container_name: like-a-model
+    ports:
+      - "${APP_PORT:-3005}:80"
+    restart: unless-stopped
