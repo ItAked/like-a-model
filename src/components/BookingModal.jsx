@@ -3,11 +3,11 @@ import { m, useReducedMotion } from 'framer-motion';
 import { dur, easeOut, easeUi, tween } from '../motion/tokens.js';
 
 const FIELD = 'field grid gap-[.45rem]';
-const LABEL = 'field-lbl text-(length:--fs-body) leading-[1.5] font-medium text-lam-brown';
+const LABEL = 'field-lbl text-(length:--fs-body) leading-normal font-medium text-lam-brown';
 const WRAP = 'field-wrap relative block';
 const INPUT = 'input min-h-13 w-full rounded-lam-md border-[1.5px] border-[var(--color-border-strong)] bg-lam-surface-alt px-4 py-[.85rem] text-(length:--fs-body) leading-[1.6] text-lam-brown transition-[border-color,box-shadow,background] duration-200 placeholder:text-lam-muted placeholder:opacity-75 hover:border-(--color-brand-rose) focus:border-lam-primary focus:bg-lam-surface focus:shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-primary)_14%,transparent)] focus:outline-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-lam-primary';
 const WRAPPED_INPUT = `${INPUT} pr-[2.9rem] pl-4`;
-const ERROR = 'field-err text-[length:var(--fs-small)] leading-[1.5] font-bold text-lam-danger empty:hidden';
+const ERROR = 'field-err text-(length:--fs-small) leading-normal font-bold text-lam-danger empty:hidden';
 const ICON = 'ico field-ico pointer-events-none absolute top-1/2 right-[.9rem] size-[1.2rem] -translate-y-1/2 text-lam-muted';
 
 const BookingWizard = memo(function BookingWizard() {
@@ -110,9 +110,10 @@ const BookingWizard = memo(function BookingWizard() {
                 <svg className="ico" aria-hidden="true"><use href="#i-pin"></use></svg>
                 استخدام موقعي الحالي
               </button>
-              <p className="text-[.8125rem] leading-[1.5] text-lam-muted" id="bkMapHint">اضغطي على الخريطة لوضع العلامة، أو استخدمي موقعكِ الحالي.</p>
+              <p className="text-[.8125rem] leading-normal text-lam-muted" id="bkMapHint">اضغطي على الخريطة لوضع العلامة، أو استخدمي موقعكِ الحالي.</p>
             </div>
-            <div className="bk-locate-done flex min-h-13 w-full items-center justify-between gap-3 rounded-lam-md border border-lam-primary bg-white px-4 py-[.7rem] shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-primary)_14%,transparent)]" id="bkLocateDone" hidden>
+            <div className={`bk-locate-done flex min-h-13 w-full items-center justify-between gap-3 rounded-lam-md border border-lam-primary bg-white px-4 py-[.7rem]
+              shadow-[0_0_0_3px_color-mix(in_srgb,var(--color-primary)_14%,transparent)]`} id="bkLocateDone" hidden>
               <span className="inline-flex items-center gap-[.45rem] text-(length:--fs-body) font-bold text-lam-brown">
                 <svg className="ico" aria-hidden="true"><use href="#i-check"></use></svg>
                 <span>تم تحديد موقع الجلسة</span>
@@ -127,14 +128,17 @@ const BookingWizard = memo(function BookingWizard() {
           </div>
 
           <div className="bk-panel hidden min-w-0 gap-4 border-0 p-0 [&.is-on]:grid" data-bk-step="4" hidden>
-            <p className="text-(length:--fs-body) leading-[1.5] font-bold text-lam-brown">اختاري الموعد المناسب لجلسة التقييم <span className="req text-lam-primary" aria-hidden="true">*</span></p>
+            <p className="text-(length:--fs-body) leading-normal font-bold text-lam-brown">اختاري الموعد المناسب لجلسة التقييم <span className="req text-lam-primary"
+              aria-hidden="true">*</span></p>
             <div className="rounded-lam-md border border-(--color-neutral-border) bg-white px-3 pb-4 pt-[.85rem]" id="bkCal">
               <div className="mb-3 flex items-center justify-between gap-2">
-                <button className="grid size-9 place-items-center rounded-lam-pill text-lam-muted hover:bg-[color-mix(in_srgb,var(--color-brown)_5%,transparent)] hover:text-lam-brown" type="button" id="bkCalNext" aria-label="الشهر التالي">
+                <button className="grid size-9 place-items-center rounded-lam-pill text-lam-muted hover:bg-[color-mix(in_srgb,var(--color-brown)_5%,transparent)] hover:text-lam-brown"
+                  type="button" id="bkCalNext" aria-label="الشهر التالي">
                   <svg className="ico" aria-hidden="true"><use href="#i-arrow"></use></svg>
                 </button>
                 <p className="text-(length:--fs-body) font-bold text-lam-brown" id="bkCalMonth"></p>
-                <button className="grid size-9 place-items-center rounded-lam-pill text-lam-muted hover:bg-[color-mix(in_srgb,var(--color-brown)_5%,transparent)] hover:text-lam-brown" type="button" id="bkCalPrev" aria-label="الشهر السابق">
+                <button className="grid size-9 place-items-center rounded-lam-pill text-lam-muted hover:bg-[color-mix(in_srgb,var(--color-brown)_5%,transparent)] hover:text-lam-brown"
+                  type="button" id="bkCalPrev" aria-label="الشهر السابق">
                   <svg className="ico" aria-hidden="true" style={{ transform: "scaleX(-1)" }}><use href="#i-arrow"></use></svg>
                 </button>
               </div>
@@ -147,7 +151,8 @@ const BookingWizard = memo(function BookingWizard() {
               <p className="text-[.8125rem] font-bold text-lam-muted">الأوقات المتاحة</p>
               <p className="bk-slots-status text-[.875rem] leading-[1.6] text-lam-muted [&.is-err]:text-lam-danger" id="bkSlotsStatus" hidden role="status" aria-live="polite"></p>
               <div className="bk-slots-list flex flex-wrap gap-[.45rem]" id="bkSlotsList" role="group" aria-label="أوقات الجلسة"></div>
-              <button className="bk-slots-retry min-h-[2.1rem] justify-self-start rounded-lam-pill border border-(--color-neutral-border) bg-white px-[.9rem] py-[.35rem] text-[.8125rem] font-bold text-lam-brown hover:bg-[color-mix(in_srgb,var(--color-primary)_12%,white)]" type="button" id="bkSlotsRetry" hidden>إعادة المحاولة</button>
+              <button className={`bk-slots-retry min-h-[2.1rem] justify-self-start rounded-lam-pill border border-(--color-neutral-border) bg-white px-[.9rem] py-[.35rem] text-[.8125rem]
+                font-bold text-lam-brown hover:bg-[color-mix(in_srgb,var(--color-primary)_12%,white)]`} type="button" id="bkSlotsRetry" hidden>إعادة المحاولة</button>
             </div>
             <span className={ERROR} data-err-for="bkAppt"></span>
             <input type="hidden" id="bkDate" name="date" defaultValue="" />
@@ -166,14 +171,16 @@ const BookingWizard = memo(function BookingWizard() {
           </div>
 
           <div className="bk-actions mt-1 flex flex-wrap items-center justify-between gap-3 max-md:flex-col-reverse max-md:items-stretch">
-            <button className="bk-back min-h-11 bg-transparent px-1 text-(length:--fs-body) font-bold text-lam-muted hover:text-lam-brown max-md:self-center" type="button" id="bkBack" hidden>رجوع</button>
-            <button className="btn btn-primary bk-next ms-auto min-w-[8.5rem] max-md:ms-0 max-md:w-full" type="button" id="bkNext">التالي</button>
-            <button className="btn btn-primary bk-send ms-auto min-w-[8.5rem] max-md:ms-0 max-md:w-full" type="submit" id="bkSend" hidden disabled aria-disabled="true">
+            <button className="bk-back min-h-11 bg-transparent px-1 text-(length:--fs-body) font-bold text-lam-muted hover:text-lam-brown max-md:self-center" type="button" id="bkBack"
+              hidden>رجوع</button>
+            <button className="btn btn-primary bk-next ms-auto min-w-34 max-md:ms-0 max-md:w-full" type="button" id="bkNext">التالي</button>
+            <button className="btn btn-primary bk-send ms-auto min-w-34 max-md:ms-0 max-md:w-full" type="submit" id="bkSend" hidden disabled aria-disabled="true">
               إرسال الطلب
               <svg className="ico btn-ico" aria-hidden="true"><use href="#i-send"></use></svg>
             </button>
           </div>
-          <p className="form-status min-h-[1.4em] text-(length:--fs-body) leading-[1.6] font-bold text-lam-muted [&.is-err]:text-lam-danger [&.is-ok]:text-lam-success" role="status" aria-live="polite" id="bkStatus"></p>
+          <p className="form-status min-h-[1.4em] text-(length:--fs-body) leading-[1.6] font-bold text-lam-muted [&.is-err]:text-lam-danger [&.is-ok]:text-lam-success" role="status"
+          aria-live="polite" id="bkStatus"></p>
         </form>
       </div>
     </>
@@ -187,27 +194,14 @@ export default function BookingModal({ open }) {
 
   return (
     <div
-      className="bk-modal fixed inset-0 z-[120] grid place-items-center px-4 py-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] max-md:items-stretch max-md:p-0"
-      id="bookingModal"
-      hidden={shown ? undefined : true}
-      aria-hidden={open ? 'false' : 'true'}
-    >
-      <m.div
-        className="absolute inset-0 bg-[rgba(36,18,16,.48)] backdrop-blur-[2px]"
-        data-bk-close
-        tabIndex="-1"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: open ? 1 : 0 }}
-        transition={tween(reduce ? 0 : dur.fade, easeUi)}
-      />
-      <m.div
-        className="bk-modal-dialog relative z-1 flex max-h-[min(92vh,44rem)] w-[min(100%,34rem)] flex-col overflow-hidden rounded-[22px] border border-(--color-neutral-border) bg-white text-lam-brown shadow-[0_2px_10px_color-mix(in_srgb,var(--color-brown)_6%,transparent),0_22px_48px_color-mix(in_srgb,var(--color-brown)_16%,transparent)] max-md:h-full max-md:max-h-none max-md:w-full max-md:max-w-none max-md:rounded-none max-md:border-0"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="bkModalTitle"
-        tabIndex="-1"
-        initial={reduce ? false : { opacity: 0, y: 8 }}
-        animate={open ? { opacity: 1, y: 0 } : { opacity: 0, y: reduce ? 0 : 8 }}
+      className="bk-modal fixed inset-0 z-120 grid place-items-center px-4 py-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] max-md:items-stretch max-md:p-0"
+      id="bookingModal" hidden={shown ? undefined : true} aria-hidden={open ? 'false' : 'true'}>
+      <m.div className="absolute inset-0 bg-[rgba(36,18,16,.48)] backdrop-blur-[2px]" data-bk-close tabIndex="-1" initial={{ opacity: 0 }} animate={{ opacity: open ? 1 : 0 }}
+        transition={tween(reduce ? 0 : dur.fade, easeUi)} />
+      <m.div className={`bk-modal-dialog relative z-1 flex max-h-[min(92vh,44rem)] w-[min(100%,34rem)] flex-col overflow-hidden rounded-[22px] border border-(--color-neutral-border)
+        bg-white text-lam-brown shadow-[0_2px_10px_color-mix(in_srgb,var(--color-brown)_6%,transparent),0_22px_48px_color-mix(in_srgb,var(--color-brown)_16%,transparent)] max-md:h-full
+          max-md:max-h-none max-md:w-full max-md:max-w-none max-md:rounded-none max-md:border-0`} role="dialog" aria-modal="true" aria-labelledby="bkModalTitle" tabIndex="-1"
+        initial={reduce ? false : { opacity: 0, y: 8 }} animate={open ? { opacity: 1, y: 0 } : { opacity: 0, y: reduce ? 0 : 8 }}
         transition={open ? tween(reduce ? 0 : dur.panel, easeOut) : tween(reduce ? 0 : dur.panelExit, easeUi)}
         onAnimationComplete={() => {
           if (!open) setShown(false);

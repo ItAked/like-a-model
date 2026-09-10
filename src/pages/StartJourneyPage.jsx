@@ -2,12 +2,12 @@ import { memo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
 const FIELD = 'field grid gap-[.45rem]';
-const LABEL = 'field-lbl text-(length:--fs-body) leading-[1.5] font-medium text-lam-brown';
+const LABEL = 'field-lbl text-(length:--fs-body) leading-normal font-medium text-lam-brown';
 const WRAP = 'field-wrap relative block';
 const INPUT = 'input min-h-13 w-full appearance-none rounded-lam-md border-[1.5px] border-[var(--color-border-strong)] bg-lam-surface-alt px-4 py-[.85rem] text-(length:--fs-body) leading-[1.6] text-lam-brown transition-[border-color,box-shadow,background] duration-200 placeholder:text-lam-muted placeholder:opacity-75 hover:border-(--color-brand-rose) focus:border-lam-primary focus:bg-lam-surface focus:shadow-[0_0_0_4px_color-mix(in_srgb,var(--color-primary)_14%,transparent)] focus:outline-0 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-lam-primary';
-const ERROR = 'field-err text-[length:var(--fs-small)] leading-[1.5] font-bold text-lam-danger empty:hidden';
+const ERROR = 'field-err text-(length:--fs-small) leading-normal font-bold text-lam-danger empty:hidden';
 const OPTION = 'optrow relative flex h-full min-w-0';
-const OPTION_FACE = 'optrow-face flex min-h-13 w-full flex-1 items-center gap-[.7rem] rounded-lam-md border-[1.5px] border-[var(--color-border)] bg-lam-surface-alt px-[.9rem] py-[.65rem] text-start text-(length:--fs-body) leading-[1.5] text-lam-muted transition-colors duration-200 before:size-[19px] before:shrink-0 before:rounded-lam-pill before:border-2 before:border-[var(--color-border-strong)] before:bg-lam-surface';
+const OPTION_FACE = 'optrow-face flex min-h-13 w-full flex-1 items-center gap-[.7rem] rounded-lam-md border-[1.5px] border-(--color-border) bg-lam-surface-alt px-[.9rem] py-[.65rem] text-start text-(length:--fs-body) leading-normal text-lam-muted transition-colors duration-200 before:size-[19px] before:shrink-0 before:rounded-lam-pill before:border-2 before:border-[var(--color-border-strong)] before:bg-lam-surface';
 
 const SyjCard = memo(function SyjCard() {
   return (

@@ -11,7 +11,7 @@ function StoryCard({ item, onOpen, reduce, fine }) {
 
   return (
     <m.article
-      className="grid cursor-pointer gap-[.7rem] rounded-[18px] border border-[rgba(68,35,26,.12)] bg-white px-6 py-[22px] text-start shadow-[0_8px_22px_rgba(68,35,26,.07)] transition-shadow duration-200 hover:shadow-[0_14px_30px_rgba(68,35,26,.12)] lg:px-6 lg:py-[22px] max-lg:px-[1.15rem] max-lg:py-[1.1rem]"
+      className="grid cursor-pointer gap-[.7rem] rounded-[18px] border border-[rgba(68,35,26,.12)] bg-white px-6 py-5.5 text-start shadow-[0_8px_22px_rgba(68,35,26,.07)] transition-shadow duration-200 hover:shadow-[0_14px_30px_rgba(68,35,26,.12)] lg:px-6 lg:py-5.5 max-lg:px-[1.15rem] max-lg:py-[1.1rem]"
       tabIndex={0}
       role="button"
       aria-label={`اقرئي قصة ${item.name}`}
@@ -107,14 +107,14 @@ export default function StoriesPage({ onOpenBooking }) {
   return (
     <main id="main">
       <section className="pt-[calc(var(--header-measured,var(--header-h))+env(safe-area-inset-top,0px))]" id="storiesPage" aria-labelledby="spTitle">
-        <div className="relative min-h-[250px] overflow-hidden bg-[radial-gradient(ellipse_48%_70%_at_50%_35%,rgba(224,174,175,.26)_0%,rgba(255,252,250,.35)_42%,transparent_72%),linear-gradient(180deg,var(--section-white)_0%,var(--section-blush)_100%)] py-[clamp(1.35rem,2.4vw,1.75rem)] max-lg:min-h-55 max-lg:py-[1.15rem]">
-          <div className="shell relative min-h-[250px] max-lg:min-h-55" dir="rtl">
-            <Link className="absolute start-0 top-0 z-2 inline-flex items-center gap-[.4rem] text-[.88rem] font-bold text-lam-brown opacity-80 hover:text-lam-primary-active hover:opacity-100" to={{ pathname: '/', hash: '#stories' }}>
+        <div className="relative min-h-62.5 overflow-hidden bg-[radial-gradient(ellipse_48%_70%_at_50%_35%,rgba(224,174,175,.26)_0%,rgba(255,252,250,.35)_42%,transparent_72%),linear-gradient(180deg,var(--section-white)_0%,var(--section-blush)_100%)] py-[clamp(1.35rem,2.4vw,1.75rem)] max-lg:min-h-55 max-lg:py-[1.15rem]">
+          <div className="shell relative min-h-62.5 max-lg:min-h-55" dir="rtl">
+            <Link className="absolute inset-s-0 top-0 z-2 inline-flex items-center gap-[.4rem] text-[.88rem] font-bold text-lam-brown opacity-80 hover:text-lam-primary-active hover:opacity-100" to={{ pathname: '/', hash: '#stories' }}>
               <svg className="ico size-[.82rem]" aria-hidden="true"><use href="#i-arrow"></use></svg>
               العودة للرئيسية
             </Link>
-            <div className="mx-auto flex min-h-[250px] max-w-160 flex-col items-center justify-center pb-[.35rem] pt-7 text-center max-lg:min-h-55 max-lg:pb-1 max-lg:pt-[2.1rem]">
-              <h1 className="relative z-0 mb-[.45rem] font-lam-heading text-(length:--fs-h1) leading-[1.35] font-bold text-lam-brown before:pointer-events-none before:absolute before:start-1/2 before:top-[40%] before:-z-10 before:h-[4.5rem] before:w-[min(22rem,92%)] before:-translate-x-1/2 before:-translate-y-1/2 before:bg-[radial-gradient(ellipse_closest-side,rgba(224,174,175,.22)_0%,rgba(255,252,250,.15)_55%,transparent_78%)]" id="spTitle">{goal.title}</h1>
+            <div className="mx-auto flex min-h-62.5 max-w-160 flex-col items-center justify-center pb-[.35rem] pt-7 text-center max-lg:min-h-55 max-lg:pb-1 max-lg:pt-[2.1rem]">
+              <h1 className="relative z-0 mb-[.45rem] font-lam-heading text-(length:--fs-h1) leading-[1.35] font-bold text-lam-brown before:pointer-events-none before:absolute before:inset-s-1/2 before:top-[40%] before:-z-10 before:h-18 before:w-[min(22rem,92%)] before:-translate-x-1/2 before:-translate-y-1/2 before:bg-[radial-gradient(ellipse_closest-side,rgba(224,174,175,.22)_0%,rgba(255,252,250,.15)_55%,transparent_78%)]" id="spTitle">{goal.title}</h1>
               <p className="mb-2 max-w-md text-(length:--fs-body) leading-[1.7] text-lam-muted">رحلات حقيقية بدأت بهدف يشبه هدفكِ.</p>
               <p className="mb-[.55rem] text-[.9rem] font-bold text-lam-primary" id="spCount">{queue.length} قصص ملهمة</p>
               <p className="flex items-center justify-center gap-3 text-lam-primary" aria-hidden="true">
@@ -132,7 +132,7 @@ export default function StoriesPage({ onOpenBooking }) {
               <m.button
                 key={id}
                 type="button"
-                className={'grid h-11 min-h-11 w-full cursor-pointer place-items-center whitespace-normal rounded-lam-pill border px-[.55rem] py-[.45rem] text-center text-[.86rem] leading-[1.25] font-bold transition-colors duration-200 ' + (id === current ? 'is-active border-lam-primary bg-lam-primary text-white' : 'border-[rgba(68,35,26,.14)] bg-white text-lam-brown hover:border-[rgba(68,35,26,.28)]')}
+                className={'grid h-11 min-h-11 w-full cursor-pointer place-items-center whitespace-normal rounded-lam-pill border px-[.55rem] py-[.45rem] text-center text-[.86rem] leading-tight font-bold transition-colors duration-200 ' + (id === current ? 'is-active border-lam-primary bg-lam-primary text-white' : 'border-[rgba(68,35,26,.14)] bg-white text-lam-brown hover:border-[rgba(68,35,26,.28)]')}
                 aria-pressed={id === current ? 'true' : 'false'}
                 onClick={() => setGoal(id)}
                 whileTap={reduce ? undefined : { scale: 0.99 }}
@@ -152,7 +152,7 @@ export default function StoriesPage({ onOpenBooking }) {
                 <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_top,rgba(68,35,26,.58)_0%,rgba(68,35,26,.18)_38%,transparent_68%)]" aria-hidden="true"></div>
                 <div className="absolute inset-x-5 bottom-[1.2rem] z-1 text-white">
                   <p className="mb-[.2rem] text-[1.2rem] leading-[1.35] font-bold">{goal.label}</p>
-                  <p className="text-[.92rem] leading-[1.5] opacity-90">رحلات حقيقية بدأت من هنا</p>
+                  <p className="text-[.92rem] leading-normal opacity-90">رحلات حقيقية بدأت من هنا</p>
                 </div>
               </div>
             </aside>
@@ -195,7 +195,7 @@ export default function StoriesPage({ onOpenBooking }) {
       <AnimatePresence>
         {story && (
           <m.div
-            className="fixed inset-0 z-80 grid place-items-center px-[4.5rem] py-4 max-lg:p-[.55rem]"
+            className="fixed inset-0 z-80 grid place-items-center px-18 py-4 max-lg:p-[.55rem]"
             key="sp-modal"
             aria-hidden="false"
             initial={false}
@@ -213,7 +213,7 @@ export default function StoriesPage({ onOpenBooking }) {
               transition={tween(reduce ? 0 : dur.fade, easeUi)}
             />
             <div className="relative z-1 w-[min(760px,92vw)] max-lg:w-[min(100%,96vw)]">
-              <button className="absolute top-1/2 left-[-64px] z-2 grid size-12 -translate-y-1/2 place-items-center rounded-lam-pill bg-white text-lam-primary shadow-[0_8px_22px_rgba(68,35,26,.14)] transition-colors hover:bg-lam-primary hover:text-white disabled:pointer-events-none disabled:opacity-40 max-lg:hidden" type="button" aria-label="القصة السابقة" disabled={modalIndex <= 0} onClick={() => go(-1)}>
+              <button className="absolute top-1/2 -left-16 z-2 grid size-12 -translate-y-1/2 place-items-center rounded-lam-pill bg-white text-lam-primary shadow-[0_8px_22px_rgba(68,35,26,.14)] transition-colors hover:bg-lam-primary hover:text-white disabled:pointer-events-none disabled:opacity-40 max-lg:hidden" type="button" aria-label="القصة السابقة" disabled={modalIndex <= 0} onClick={() => go(-1)}>
                 <svg className="ico" aria-hidden="true"><use href="#i-arrow"></use></svg>
               </button>
               <m.div
@@ -227,7 +227,7 @@ export default function StoriesPage({ onOpenBooking }) {
                 exit={{ opacity: 0, y: 0 }}
                 transition={tween(reduce ? 0 : 0.4, easeOut)}
               >
-                <button className="absolute start-[.85rem] top-[.85rem] z-2 grid size-10 place-items-center rounded-lam-pill bg-[rgba(255,252,250,.92)] text-lam-brown hover:bg-white" type="button" aria-label="إغلاق" onClick={closeModal}>
+                <button className="absolute inset-s-[.85rem] top-[.85rem] z-2 grid size-10 place-items-center rounded-lam-pill bg-[rgba(255,252,250,.92)] text-lam-brown hover:bg-white" type="button" aria-label="إغلاق" onClick={closeModal}>
                   <svg className="ico size-[1.05rem]" aria-hidden="true"><use href="#i-close"></use></svg>
                 </button>
                 <div className="overflow-auto px-[1.35rem] pb-6 pt-5 overscroll-contain">
@@ -242,7 +242,7 @@ export default function StoriesPage({ onOpenBooking }) {
                       transition={tween(reduce ? 0 : dur.modalSwap, easeOut)}
                     >
                       <p className="mb-3 text-center text-[.86rem] font-bold text-lam-primary" id="spModalTitle">{modalIndex + 1} من {queue.length} قصص</p>
-                      <div className="-mx-[1.35rem] mb-[1.1rem] aspect-video overflow-hidden bg-lam-blush max-lg:mb-0">
+                      <div className="mx-[-1.35rem] mb-[1.1rem] aspect-video overflow-hidden bg-lam-blush max-lg:mb-0">
                         <img className="size-full object-cover" src={story.image} alt="" width="760" height="420" loading="lazy" />
                       </div>
                       <div className="my-[.85rem] mb-[1.1rem] hidden justify-center gap-3 max-lg:flex" dir="ltr" aria-label="التنقل بين القصص">
@@ -276,7 +276,7 @@ export default function StoriesPage({ onOpenBooking }) {
                   </AnimatePresence>
                 </div>
               </m.div>
-              <button className="absolute top-1/2 right-[-64px] z-2 grid size-12 -translate-y-1/2 place-items-center rounded-lam-pill bg-white text-lam-primary shadow-[0_8px_22px_rgba(68,35,26,.14)] transition-colors hover:bg-lam-primary hover:text-white disabled:pointer-events-none disabled:opacity-40 max-lg:hidden" type="button" aria-label="القصة التالية" disabled={modalIndex >= queue.length - 1} onClick={() => go(1)}>
+              <button className="absolute top-1/2 -right-16 z-2 grid size-12 -translate-y-1/2 place-items-center rounded-lam-pill bg-white text-lam-primary shadow-[0_8px_22px_rgba(68,35,26,.14)] transition-colors hover:bg-lam-primary hover:text-white disabled:pointer-events-none disabled:opacity-40 max-lg:hidden" type="button" aria-label="القصة التالية" disabled={modalIndex >= queue.length - 1} onClick={() => go(1)}>
                 <svg className="ico scale-x-[-1]" aria-hidden="true"><use href="#i-arrow"></use></svg>
               </button>
             </div>
