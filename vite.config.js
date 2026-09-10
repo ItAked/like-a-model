@@ -1,16 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
 
 const isGitHubActions = process.env.GITHUB_ACTIONS === 'true';
 const base = isGitHubActions ? '/like-a-model/' : '/';
 
 function prefixPublicAssetUrls() {
   if (base === '/') return null;
-  const rewrite = (source) =>
-    String(source)
-      .replaceAll('url("/assets/', `url("${base}assets/`)
-      .replaceAll("url('/assets/", `url('${base}assets/`)
-      .replaceAll('url(/assets/', `url(${base}assets/`);
+  const rewrite = (source) => String(source).replaceAll('url("/assets/', `url("${base}assets/`).replaceAll("url('/assets/", `url('${base}assets/`)
+  .replaceAll('url(/assets/', `url(${base}assets/`);
   return {
     name: 'prefix-public-asset-urls',
     apply: 'build',
@@ -25,7 +23,7 @@ function prefixPublicAssetUrls() {
 }
 
 export default defineConfig({
-  plugins: [react(), prefixPublicAssetUrls()].filter(Boolean),
+  plugins: [react(), tailwindcss(), prefixPublicAssetUrls()].filter(Boolean),
   appType: 'spa',
-  base,
+  base
 });

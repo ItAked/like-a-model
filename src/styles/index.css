@@ -1,2 +1,36 @@
-@import './styles.css';
-@import './soft-halo-cursor.css';
+@import 'tailwindcss';
+@import './styles.css' layer(components);
+@import './header.css' layer(components);
+@import './soft-halo-cursor.css' layer(components);
+
+@theme inline {
+  --color-lam-primary: var(--color-primary);
+  --color-lam-primary-hover: var(--color-primary-hover);
+  --color-lam-primary-active: var(--color-primary-active);
+  --color-lam-brown: var(--color-brown);
+  --color-lam-surface: var(--color-surface);
+  --color-lam-surface-alt: var(--color-surface-alt);
+  --color-lam-blush: var(--color-surface-blush);
+  --color-lam-muted: var(--color-text-muted);
+  --color-lam-subtle: var(--color-text-subtle);
+  --color-lam-danger: var(--color-danger);
+  --color-lam-success: var(--color-success);
+  --color-lam-whatsapp: var(--color-whatsapp);
+  --font-lam-ar: var(--font-ar);
+  --font-lam-heading: var(--font-ar-heading);
+  --font-lam-brand: var(--font-en-brand);
+  --font-lam-en: var(--font-en);
+  --radius-lam-sm: var(--r-sm);
+  --radius-lam-md: var(--r-md);
+  --radius-lam-lg: var(--r-lg);
+  --radius-lam-xl: var(--r-xl);
+  --radius-lam-2xl: var(--r-2xl);
+  --radius-lam-pill: var(--r-pill);
+  --shadow-lam-1: var(--sh-1);
+  --shadow-lam-2: var(--sh-2);
+  --shadow-lam-3: var(--sh-3);
+  --breakpoint-sm: 35rem;
+  --breakpoint-md: 48rem;
+  --breakpoint-lg: 56.25rem;
+  --breakpoint-nav: 67.5rem;
+}

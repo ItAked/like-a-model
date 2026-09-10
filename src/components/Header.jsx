@@ -13,7 +13,7 @@ const NAV = [
   { id: 'ecosystem', label: 'منظومتنا' },
   { id: 'journey', label: 'فريقنا' },
   { id: 'stories', label: 'قصص التحوّل' },
-  { id: 'contact', label: 'تواصلي معنا' },
+  { id: 'contact', label: 'تواصلي معنا' }
 ];
 
 function NavLinks({ home, activeId, goSection }) {
@@ -21,11 +21,7 @@ function NavLinks({ home, activeId, goSection }) {
     <ul>
       {NAV.map((item) => (
         <li key={item.id}>
-          <Link
-            to={{ pathname: '/', hash: `#${item.id}` }}
-            aria-current={home && activeId === item.id ? 'true' : undefined}
-            onClick={goSection(item.id)}
-          >
+          <Link to={{ pathname: '/', hash: `#${item.id}` }} aria-current={home && activeId === item.id ? 'true' : undefined} onClick={goSection(item.id)}>
             {item.label}
           </Link>
         </li>
@@ -34,7 +30,6 @@ function NavLinks({ home, activeId, goSection }) {
   );
 }
 
-/** Live owner of header scroll state, mobile nav, and section scroll-spy. */
 export default function Header({ pinned }) {
   const location = useLocation();
   const navigate = useNavigate();
@@ -63,10 +58,7 @@ export default function Header({ pinned }) {
     const header = document.getElementById('siteHeader');
     const syncOffset = () => {
       if (!header) return;
-      document.documentElement.style.setProperty(
-        '--header-measured',
-        `${Math.round(header.getBoundingClientRect().height)}px`,
-      );
+      document.documentElement.style.setProperty('--header-measured', `${Math.round(header.getBoundingClientRect().height)}px`);
     };
     syncOffset();
     window.addEventListener('resize', syncOffset);
@@ -131,7 +123,7 @@ export default function Header({ pinned }) {
   const headerClass = [
     'site-header',
     (pinned || scrolled) ? 'is-scrolled' : '',
-    navOpen ? 'is-nav-open' : '',
+    navOpen ? 'is-nav-open' : ''
   ].filter(Boolean).join(' ');
 
   const overlayDur = reduce ? 0 : dur.overlay;
@@ -151,7 +143,6 @@ export default function Header({ pinned }) {
 
   return (
     <header className={headerClass} id="siteHeader">
-      <div className="shell header-stack">
         <div className="header-inner">
           <Link className="brand" to={{ pathname: '/', hash: '#home' }} aria-label="Like A Model — الصفحة الرئيسية" onClick={goSection('home')}>
             <span className="brand-mark" aria-hidden="true">
@@ -163,28 +154,14 @@ export default function Header({ pinned }) {
           </Link>
 
           {desktop ? (
-            <nav
-              className="site-nav"
-              id="siteNav"
-              aria-label="التنقل الرئيسي"
-              aria-hidden={navExposed ? 'false' : 'true'}
-              inert={!navExposed ? true : undefined}
-            >
+            <nav className="site-nav"id="siteNav" aria-label="التنقل الرئيسي" aria-hidden={navExposed ? 'false' : 'true'} inert={!navExposed ? true : undefined}>
               {links}
             </nav>
           ) : (
             <AnimatePresence>
               {navOpen ? (
-                <m.nav
-                  className="site-nav"
-                  id="siteNav"
-                  aria-label="التنقل الرئيسي"
-                  aria-hidden="false"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={tween(overlayDur, easeUi)}
-                >
+                <m.nav className="site-nav" id="siteNav" aria-label="التنقل الرئيسي" aria-hidden="false" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                  transition={tween(overlayDur, easeUi)}>
                   {links}
                 </m.nav>
               ) : null}
@@ -195,36 +172,32 @@ export default function Header({ pinned }) {
             <MobileMenu open={navOpen} onToggle={() => setNavOpen((v) => !v)} />
             <div className="header-aside">
               <ul className="header-social" aria-label="حسابات التواصل الاجتماعي">
-                <li><a href="https://www.linkedin.com/" rel="noopener noreferrer" target="_blank" data-social="linkedin" aria-label="لينكدإن"><svg className="ico" aria-hidden="true"><use href="#i-linkedin"></use></svg></a></li>
-                <li><a href="https://x.com/" rel="noopener noreferrer" target="_blank" data-social="x" aria-label="إكس"><svg className="ico" aria-hidden="true"><use href="#i-x"></use></svg></a></li>
-                <li><a href="https://www.facebook.com/" rel="noopener noreferrer" target="_blank" data-social="facebook" aria-label="فيسبوك"><svg className="ico" aria-hidden="true"><use href="#i-facebook"></use></svg></a></li>
-                <li><a href="https://www.instagram.com/" rel="noopener noreferrer" target="_blank" data-social="instagram" aria-label="إنستغرام"><svg className="ico ico-outline" aria-hidden="true"><use href="#i-instagram"></use></svg></a></li>
-                <li><a href="https://www.tiktok.com/" rel="noopener noreferrer" target="_blank" data-social="tiktok" aria-label="تيك توك"><svg className="ico" aria-hidden="true"><use href="#i-tiktok"></use></svg></a></li>
-                <li><a href="https://www.youtube.com/" rel="noopener noreferrer" target="_blank" data-social="youtube" aria-label="يوتيوب"><svg className="ico" aria-hidden="true"><use href="#i-youtube"></use></svg></a></li>
+                <li><a href="https://www.linkedin.com/" rel="noopener noreferrer" target="_blank" data-social="linkedin" aria-label="لينكدإن"><svg className="ico" aria-hidden="true">
+                  <use href="#i-linkedin"></use></svg></a></li>
+                <li><a href="https://x.com/" rel="noopener noreferrer" target="_blank" data-social="x" aria-label="إكس"><svg className="ico" aria-hidden="true"><use href="#i-x"></use></svg>
+                </a></li>
+                <li><a href="https://www.facebook.com/" rel="noopener noreferrer" target="_blank" data-social="facebook" aria-label="فيسبوك"><svg className="ico" aria-hidden="true">
+                  <use href="#i-facebook"></use></svg></a></li>
+                <li><a href="https://www.instagram.com/" rel="noopener noreferrer" target="_blank" data-social="instagram" aria-label="إنستغرام"><svg className="ico ico-outline"
+                aria-hidden="true"><use href="#i-instagram"></use></svg></a></li>
+                <li><a href="https://www.tiktok.com/" rel="noopener noreferrer" target="_blank" data-social="tiktok" aria-label="تيك توك"><svg className="ico" aria-hidden="true">
+                  <use href="#i-tiktok"></use></svg></a></li>
+                <li><a href="https://www.youtube.com/" rel="noopener noreferrer" target="_blank" data-social="youtube" aria-label="يوتيوب"><svg className="ico" aria-hidden="true">
+                  <use href="#i-youtube"></use></svg></a></li>
                 <li>
                   <a href="https://wa.me/966542555516" id="headerWhatsapp" rel="noopener noreferrer" target="_blank" aria-label="واتساب">
                     <svg className="ico" aria-hidden="true"><use href="#i-whatsapp"></use></svg>
                   </a>
                 </li>
               </ul>
-              <a
-                className="lang-switch"
-                id="langSwitch"
-                href="#"
-                lang="en"
-                hrefLang="en"
-                aria-label="English version"
-                aria-disabled="true"
-                title="النسخة الإنجليزية قريبًا"
-                onClick={(e) => e.preventDefault()}
-              >
+              <a className="lang-switch" id="langSwitch" href="#" lang="en" hrefLang="en" aria-label="English version" aria-disabled="true" title="النسخة الإنجليزية قريبًا"
+                onClick={(e) => e.preventDefault()}>
                 <svg className="ico" aria-hidden="true"><use href="#i-globe"></use></svg>
                 <span>EN</span>
               </a>
             </div>
           </div>
         </div>
-      </div>
     </header>
   );
 }

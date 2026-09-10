@@ -18,7 +18,7 @@ const BEATS = {
   b1: [0.523, 0.636],
   b2: [0.614, 0.727],
   b3: [0.705, 0.818],
-  close: [0.795, 1],
+  close: [0.795, 1]
 };
 
 function useAboutPin(reduce) {
@@ -35,8 +35,8 @@ function useAboutPin(reduce) {
 
 function DecisionCheck() {
   return (
-    <span className="about-decision-ico" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" focusable="false">
+    <span className="mt-[calc((1.85em-20px)/2)] size-5 shrink-0 text-inherit" aria-hidden="true">
+      <svg className="block size-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round" focusable="false">
         <path d="M5 12.5 10 17.5 19 6.5" />
       </svg>
     </span>
@@ -52,11 +52,7 @@ function StoryLine({ as = 'p', from = 0, until, className, children, ...rest }) 
   const names = [className, 'about-story-line'].filter(Boolean).join(' ');
 
   return (
-    <Tag
-      className={names}
-      style={tl.pin ? { opacity, y } : { opacity: 1, y: 0 }}
-      {...rest}
-    >
+    <Tag className={names} style={tl.pin ? { opacity, y } : { opacity: 1, y: 0 }} {...rest}>
       {children}
     </Tag>
   );
@@ -66,10 +62,9 @@ const CODA_POINTS = [
   { title: 'أنتِ محور رحلتنا', copy: 'نحن نصمم لكِ لأنكِ أنتِ.', icon: '#i-heart' },
   { title: 'نتائج حقيقية', copy: 'خطط مبنية على العلم والخبرة لتحقيق نتائج تدوم.', icon: '#i-shield' },
   { title: 'تجربة خاصة', copy: 'برامج مصممة لتناسب أهدافكِ وأسلوب حياتكِ.', icon: '#i-diamond' },
-  { title: 'دعم متكامل', copy: 'فريق متخصص معكِ في كل خطوة.', icon: '#i-users' },
+  { title: 'دعم متكامل', copy: 'فريق متخصص معكِ في كل خطوة.', icon: '#i-users' }
 ];
 
-/* RTL: starts at the right-hand station and flows left through 12.5 / 37.5 / 62.5 / 87.5. */
 const CODA_LINE = 'M875 20 C790 8 710 32 625 18 C540 6 460 34 375 20 C290 8 210 30 125 20';
 const CODA_STACK_MQ = '(max-width: 899px)';
 const CODA_TITLE_DUR = 0.32;
@@ -105,47 +100,33 @@ function useCodaStack() {
 
 function CodaPoint({ item, index, show, reduce, fine, stacked, hoverReady }) {
   const stopDelay = CODA_PATH_DELAY + CODA_PATH_DUR * CODA_STOP_AT[index];
-  const delay = reduce || !show ? 0 : (stacked
-    ? CODA_MOBILE_START + index * CODA_MOBILE_STAGGER
-    : stopDelay);
+  const delay = reduce || !show ? 0 : (stacked ? CODA_MOBILE_START + index * CODA_MOBILE_STAGGER : stopDelay);
   const lift = Boolean(hoverReady && fine && !reduce);
   const hide = !show && !reduce;
   const kidsRest = stacked || reduce;
 
   return (
-    <m.li
-      className="about-coda-point"
-      style={{ '--coda-delay': `${delay}s` }}
-      initial={stacked && !reduce ? { opacity: 0, y: 12 } : false}
-      animate={stacked
-        ? (hide ? { opacity: 0, y: 12 } : { opacity: 1, y: 0 })
-        : { opacity: 1, y: 0 }}
-      transition={stacked
-        ? { ...tween(reduce ? 0 : CODA_MOBILE_DUR, easeOut), delay }
-        : instant()}
+    <m.li className="about-coda-point relative z-1 flex min-w-0 flex-col items-center px-[clamp(12px,1.8vw,28px)] text-center max-lg:px-(--s-2)" style={{ '--coda-delay': `${delay}s` }}
+      initial={stacked && !reduce ? { opacity: 0, y: 12 } : false} animate={stacked ? (hide ? { opacity: 0, y: 12 } : { opacity: 1, y: 0 }) : { opacity: 1, y: 0 }}
+      transition={stacked ? { ...tween(reduce ? 0 : CODA_MOBILE_DUR, easeOut), delay } : instant()}
       whileHover={lift ? { y: CODA_HOVER_Y, transition: tween(dur.hover, easeUi) } : undefined}
     >
-      <span className="about-coda-station">
-        <m.span
-          className="about-coda-disk"
-          aria-hidden="true"
-          initial={kidsRest ? false : { opacity: 0, scale: 0.88 }}
-          animate={kidsRest || !hide ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.88 }}
+      <span className="relative z-1 flex h-[calc(var(--coda-disk)+var(--coda-rail))] w-(--coda-disk) flex-none flex-col items-center">
+        <m.span className="about-coda-disk grid size-(--coda-disk) place-items-center rounded-full bg-[color-mix(in_srgb,var(--color-primary)_34%,var(--color-white))] text-lam-brown"
+          aria-hidden="true" initial={kidsRest ? false : { opacity: 0, scale: 0.88 }} animate={kidsRest || !hide ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.88 }}
           transition={{
             ...tween(kidsRest ? 0 : CODA_ICON_DUR, easeOut),
             delay: kidsRest || hide ? 0 : stopDelay + CODA_ICON_LAG,
           }}
         >
-          <svg className="ico"><use href={item.icon}></use></svg>
+          <svg className="ico size-[1.85rem] stroke-[1.45] max-lg:size-[1.55rem]"><use href={item.icon}></use></svg>
         </m.span>
-        <span className="about-coda-dot" aria-hidden="true">
-          <span
-            className={'about-coda-dot-core' + (!kidsRest && show ? ' is-pulse' : '')}
-          />
+        <span className={`absolute top-[calc(var(--coda-disk)+var(--coda-rail)/2)] left-1/2 z-2 size-2 -translate-x-1/2 -translate-y-1/2 overflow-visible rounded-lam-pill bg-transparent
+          shadow-none`} aria-hidden="true">
+          <span className={'about-coda-dot-core block size-2 origin-center rounded-[inherit] bg-lam-primary' + (!kidsRest && show ? ' is-pulse' : '')} />
         </span>
       </span>
-      <m.strong
-        initial={kidsRest ? false : { opacity: 0, y: 12 }}
+      <m.strong className="mb-[.4rem] text-[clamp(.98rem,.95rem+.12vw,1.06rem)] leading-[1.35] font-bold text-(--color-text)" initial={kidsRest ? false : { opacity: 0, y: 12 }}
         animate={kidsRest || !hide ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
         transition={{
           ...tween(kidsRest ? 0 : CODA_TEXT_DUR, easeOut),
@@ -154,10 +135,8 @@ function CodaPoint({ item, index, show, reduce, fine, stacked, hoverReady }) {
       >
         {item.title}
       </m.strong>
-      <m.span
-        className="about-coda-copy"
-        initial={kidsRest ? false : { opacity: 0, y: 12 }}
-        animate={kidsRest || !hide ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+      <m.span className="about-coda-copy max-w-66 text-[clamp(.86rem,.84rem+.1vw,.94rem)] leading-[1.65] font-medium text-lam-muted max-lg:max-w-none"
+        initial={kidsRest ? false : { opacity: 0, y: 12 }} animate={kidsRest || !hide ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
         transition={{
           ...tween(kidsRest ? 0 : CODA_TEXT_DUR, easeOut),
           delay: kidsRest || hide ? 0 : stopDelay + CODA_TEXT_LAG,
@@ -179,7 +158,7 @@ function AboutCoda() {
   const [hoverReady, setHoverReady] = useState(() => Boolean(reduce));
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ['start end', 'end start'],
+    offset: ['start end', 'end start']
   });
   const paperY = useTransform(scrollYProgress, [0, 1], reduce ? [0, 0] : [7, -7]);
 
@@ -198,66 +177,33 @@ function AboutCoda() {
   }, [reduce, show, stacked]);
 
   return (
-    <section
-      className="about-coda"
-      ref={ref}
-      aria-label="شريككِ في رحلة التحوّل"
-    >
-      <m.img
-        className="about-coda-paper"
-        src={codaPaper}
-        alt=""
-        aria-hidden="true"
-        draggable="false"
-        style={{ y: paperY }}
-      />
-      <div className="about-coda-inner">
-        <m.header
-          className="about-coda-head"
-          initial={reduce ? false : { opacity: 0, y: 10 }}
-          animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-          transition={tween(reduce ? 0 : CODA_TITLE_DUR, easeOut)}
-        >
+    <section className={`about-coda relative z-1 m-0 w-full overflow-x-hidden bg-(--section-blush) p-0 text-center text-(--color-text) [--coda-disk:clamp(3.65rem,5.6vw,4.75rem)]
+      [--coda-rail:2.15rem] [direction:rtl] max-lg:[--coda-disk:3.5rem] max-lg:[--coda-rail:1.35rem]`} ref={ref} aria-label="شريككِ في رحلة التحوّل">
+      <m.img className="pointer-events-none absolute inset-0 z-0 size-full select-none object-fill" src={codaPaper} alt="" aria-hidden="true" draggable="false" style={{ y: paperY }} />
+      <div className={`relative z-1 mx-auto grid w-full max-w-(--shell) justify-items-stretch gap-[clamp(28px,3.4vw,42px)] px-(--gutter) pt-[clamp(36px,4.6vw,56px)] pb-[clamp(40px,4.4vw,58px)]
+        max-lg:gap-7 max-lg:px-[clamp(28px,5vw,36px)] max-lg:py-[clamp(32px,6vw,40px)]`}>
+        <m.header className={`about-coda-head mx-auto grid max-w-190 justify-items-center gap-[clamp(2px,.2vw,6px)] text-center text-lam-brown [&>p]:m-0
+        [&>p]:text-[clamp(1.875rem,1.78rem+.4vw,2.125rem)] [&>p]:leading-[1.45] [&>p]:font-semibold [&>p]:text-lam-brown max-lg:[&>p]:text-[clamp(1.625rem,1.5rem+.35vw,1.875rem)]`}
+          initial={reduce ? false : { opacity: 0, y: 10 }} animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }} transition={tween(reduce ? 0 : CODA_TITLE_DUR, easeOut)}>
           <p>لسنا مجرد برنامج تدريبي</p>
           <p>نحن شريككِ في رحلة التحوّل</p>
         </m.header>
 
-        <div className="about-coda-trail">
-          <svg
-            className="about-coda-line"
-            viewBox="0 0 1000 40"
-            preserveAspectRatio="none"
-            dir="ltr"
-            aria-hidden="true"
-            focusable="false"
-          >
-            <m.path
-              d={CODA_LINE}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.35"
-              strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-              initial={{ pathLength: reduce || stacked ? 1 : 0 }}
-              animate={{ pathLength: show ? 1 : 0 }}
+        <div className="relative mx-auto w-full min-w-0 max-w-7xl overflow-x-hidden">
+          <svg className={`pointer-events-none absolute inset-x-0 top-(--coda-disk) z-0 hidden h-(--coda-rail) w-full overflow-visible
+            text-[color-mix(in_srgb,var(--color-primary)_78%,var(--color-brown))] [direction:ltr] lg:block`} viewBox="0 0 1000 40" preserveAspectRatio="none" dir="ltr" aria-hidden="true"
+            focusable="false">
+            <m.path d={CODA_LINE} fill="none" stroke="currentColor" strokeWidth="1.35" strokeLinecap="round" vectorEffect="non-scaling-stroke"
+              initial={{ pathLength: reduce || stacked ? 1 : 0 }} animate={{ pathLength: show ? 1 : 0 }}
               transition={{
                 ...tween(reduce || stacked ? 0 : CODA_PATH_DUR, easeOut),
-                delay: reduce || stacked || !show ? 0 : CODA_PATH_DELAY,
+                delay: reduce || stacked || !show ? 0 : CODA_PATH_DELAY
               }}
             />
           </svg>
-          <ul className="about-coda-points">
+          <ul className="m-0 grid list-none grid-cols-2 items-start gap-x-(--s-4) gap-y-(--s-7) p-0 text-center [direction:rtl] lg:grid-cols-4 lg:gap-0">
             {CODA_POINTS.map((item, index) => (
-              <CodaPoint
-                key={item.title}
-                item={item}
-                index={index}
-                show={show}
-                reduce={Boolean(reduce)}
-                fine={fine}
-                stacked={stacked}
-                hoverReady={hoverReady}
-              />
+              <CodaPoint key={item.title} item={item} index={index} show={show} reduce={Boolean(reduce)} fine={fine} stacked={stacked} hoverReady={hoverReady} />
             ))}
           </ul>
         </div>
@@ -273,7 +219,7 @@ export default function About() {
   const pin = useAboutPin(Boolean(reduce));
   const { scrollYProgress } = useScroll({
     target: trackRef,
-    offset: ['start 20%', 'end end'],
+    offset: ['start 20%', 'end end']
   });
 
   useEffect(() => {
@@ -299,69 +245,63 @@ export default function About() {
     <AboutTl.Provider value={{ progress: scrollYProgress, pin, reduce }}>
       <div className="chapter" id="about">
         <div className="about-track" ref={trackRef}>
-        <section className="section section-about" id="about-intro" aria-labelledby="aboutTitle">
-          <div className="shell">
-            <StoryLine as="header" className="about-lead" from={BEATS.lead[0]} until={BEATS.lead[1]}>
-              <p className="sec-ornament" aria-hidden="true">
-                <span className="sec-ornament-line"></span>
-                <svg className="ico" aria-hidden="true"><use href="#i-heart"></use></svg>
-                <span className="sec-ornament-line"></span>
-              </p>
-              <h2 className="about-lead-title" id="aboutTitle">من نحن</h2>
-              <p className="about-lead-sub">خبرة تمتد لأكثر من ٢٠ عامًا</p>
-            </StoryLine>
+          <section className="section section-about bg-[linear-gradient(180deg,var(--section-white)_0%,var(--section-blush)_100%)] pt-(--section-y) pb-29 scroll-mt-(--scroll-offset)"
+            id="about-intro" aria-labelledby="aboutTitle">
+            <div className="mx-auto w-full max-w-(--shell) px-(--gutter)">
+              <StoryLine as="header" className="mb-[clamp(2.5rem,4vw,4rem)] text-center" from={BEATS.lead[0]} until={BEATS.lead[1]}>
+                <p className="mb-[.85rem] flex items-center justify-center gap-[.7rem] text-lam-primary" aria-hidden="true">
+                  <span className="block h-px w-11 bg-current opacity-72"></span>
+                  <svg className="ico size-3.25 fill-current stroke-none" aria-hidden="true"><use href="#i-heart"></use></svg>
+                  <span className="block h-px w-11 bg-current opacity-72"></span>
+                </p>
+                <h2 className="font-lam-heading text-(length:--fs-h2) leading-[1.3] font-bold text-(--color-text)" id="aboutTitle">من نحن</h2>
+                <p className="mt-[.9rem] text-(length:--fs-body) font-medium text-lam-muted">خبرة تمتد لأكثر من ٢٠ عامًا</p>
+              </StoryLine>
 
-            <div className="about-body">
-              <m.div
-                className="about-deco"
-                aria-hidden="true"
-                style={pin ? { opacity: decoOpacity } : { opacity: 1 }}
-              >
-                <m.img
-                  className="about-logo-watermark"
-                  src={womanSilhouette}
-                  alt=""
-                  width="1024"
-                  height="1536"
-                  draggable="false"
-                  style={{ y: pin ? watermarkY : 0 }}
-                />
-              </m.div>
-              <div className="about-story">
-                <StoryLine className="about-brand lam" lang="en" from={BEATS.brand[0]} until={BEATS.brand[1]}>Like A Model</StoryLine>
+              <div className="relative z-1 isolate">
+                <m.div className={`about-deco pointer-events-none absolute inset-y-0 inset-s-auto inset-e-0 z-0 grid w-[min(36%,20rem)] place-items-center max-md:top-0
+                  max-md:w-[min(58%,14.5rem)]`} aria-hidden="true" style={pin ? { opacity: decoOpacity } : { opacity: 1 }}>
+                  <m.img className="relative z-1 h-auto max-h-full w-[min(100%,18.5rem)] object-contain object-left opacity-20 aspect-1024/1536 max-md:opacity-10" src={womanSilhouette}
+                    alt="" width="1024" height="1536" draggable="false" style={{ y: pin ? watermarkY : 0 }} />
+                </m.div>
+                <div className="relative z-2 max-w-160">
+                  <StoryLine className="lam mb-[clamp(1.1rem,2vw,1.6rem)] font-lam-brand text-(length:--fs-display) leading-[1.15] font-semibold tracking-[-.02em] text-(--color-text)"
+                    lang="en" from={BEATS.brand[0]} until={BEATS.brand[1]}>Like A Model</StoryLine>
 
-                <div className="about-editorial" data-timeline ref={blockRef}>
-                  <div className="about-timeline" aria-hidden="true">
-                    <span className="about-tl-track"></span>
-                    <span className="about-tl-progress"></span>
-                    <span className="about-tl-start"></span>
-                    <span className="about-tl-head"></span>
-                  </div>
-                  <div className="about-editorial-body">
-                    <StoryLine className="about-line about-opener" from={BEATS.opener[0]} until={BEATS.opener[1]}>رحلة تحوّل مصممة خصيصًا لكِ.</StoryLine>
-                    <StoryLine className="about-line" from={BEATS.intro[0]} until={BEATS.intro[1]}>في <bdi className="lam" lang="en">Like A Model</bdi> نؤمن أن التحول الحقيقي لا يبدأ من الميزان، بل من القرار.</StoryLine>
-                    <ul className="about-decisions">
-                      <StoryLine as="li" className="about-decision" from={BEATS.b1[0]} until={BEATS.b1[1]}>
-                        <DecisionCheck />
-                        <span>قرار الاهتمام بنفسك.</span>
-                      </StoryLine>
-                      <StoryLine as="li" className="about-decision" from={BEATS.b2[0]} until={BEATS.b2[1]}>
-                        <DecisionCheck />
-                        <span>قرار الاستثمار في صحتك.</span>
-                      </StoryLine>
-                      <StoryLine as="li" className="about-decision" from={BEATS.b3[0]} until={BEATS.b3[1]}>
-                        <DecisionCheck />
-                        <span>قرار بناء أسلوب حياة يمنحك المزيد من القوة والثقة والتوازن.</span>
-                      </StoryLine>
-                    </ul>
-                    <StoryLine className="about-line about-copy" from={BEATS.close[0]} until={BEATS.close[1]}>لهذا صممنا تجربة متكاملة ترافقك في كل خطوة، من التقييم الأول وحتى تحقيق أهدافك، من خلال التدريب الشخصي، والتغذية، والمتابعة المستمرة، ضمن رحلة تناسب احتياجاتك وأسلوب حياتك.</StoryLine>
+                  <div className="about-editorial relative z-1 grid grid-cols-[8px_minmax(0,1fr)] items-stretch gap-x-[.85rem]" data-timeline ref={blockRef}>
+                    <div className="about-timeline relative min-h-full" aria-hidden="true">
+                      <span className="about-tl-track absolute top-1 bottom-1 left-1/2 w-px -translate-x-1/2 bg-[color-mix(in_srgb,var(--color-brand-rose)_68%,transparent)]"></span>
+                      <span className="about-tl-progress absolute top-1 left-1/2 h-[calc((100%-8px)*var(--about-tl))] w-[1.5px] -translate-x-1/2 bg-lam-primary"></span>
+                      <span className="about-tl-start absolute top-0 left-1/2 z-1 size-1.75 -translate-x-1/2 rounded-lam-pill bg-(--color-brand-rose)"></span>
+                      <span className="about-tl-head absolute top-[calc(4px+(100%-8px)*var(--about-tl)-3.5px)] left-1/2 z-1 size-1.75 -translate-x-1/2 rounded-lam-pill bg-lam-primary"></span>
+                    </div>
+                    <div className="grid min-w-0 content-start">
+                      <StoryLine className="mb-[.85rem] max-w-xl text-start text-(length:--fs-title) leading-[1.75] font-bold text-(--color-text)" from={BEATS.opener[0]}
+                        until={BEATS.opener[1]}>رحلة تحوّل مصممة خصيصًا لكِ.</StoryLine>
+                      <StoryLine className="max-w-xl text-start text-(length:--fs-body) leading-8 text-lam-muted" from={BEATS.intro[0]} until={BEATS.intro[1]}>في <bdi className="lam"
+                        lang="en">Like A Model</bdi> نؤمن أن التحول الحقيقي لا يبدأ من الميزان، بل من القرار.</StoryLine>
+                      <ul>
+                        <StoryLine as="li" className="mt-[.15rem] flex items-start gap-x-2 text-(--color-text) [&>span:last-child]:min-w-0" from={BEATS.b1[0]} until={BEATS.b1[1]}>
+                          <DecisionCheck />
+                          <span>قرار الاهتمام بنفسك.</span>
+                        </StoryLine>
+                        <StoryLine as="li" className="mt-[.15rem] flex items-start gap-x-2 text-(--color-text) [&>span:last-child]:min-w-0" from={BEATS.b2[0]} until={BEATS.b2[1]}>
+                          <DecisionCheck />
+                          <span>قرار الاستثمار في صحتك.</span>
+                        </StoryLine>
+                        <StoryLine as="li" className="mt-[.15rem] flex items-start gap-x-2 text-(--color-text) [&>span:last-child]:min-w-0" from={BEATS.b3[0]} until={BEATS.b3[1]}>
+                          <DecisionCheck />
+                          <span>قرار بناء أسلوب حياة يمنحك المزيد من القوة والثقة والتوازن.</span>
+                        </StoryLine>
+                      </ul>
+                      <StoryLine className="mt-[1.35rem] max-w-xl text-start text-(length:--fs-body) leading-8 text-lam-muted" from={BEATS.close[0]} until={BEATS.close[1]}>لهذا صممنا تجربة متكاملة ترافقك في كل خطوة، من التقييم الأول وحتى تحقيق أهدافك، من خلال التدريب الشخصي، والتغذية، والمتابعة المستمرة، ضمن رحلة تناسب احتياجاتك وأسلوب حياتك.</StoryLine>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
-          {pin ? <PinScrollCue /> : null}
-        </section>
+            {pin ? <PinScrollCue /> : null}
+          </section>
         </div>
 
         <AboutCoda />

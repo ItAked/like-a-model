@@ -223,29 +223,19 @@ export default function SoftHaloCursor() {
   if (!enabled || typeof document === 'undefined') return null;
 
   return createPortal(
-    <div className="soft-halo" id="soft-halo" ref={rootRef} aria-hidden="true">
-      <svg
-        ref={ringRef}
-        className="soft-halo__layer soft-halo__ring"
-        viewBox="0 0 32 32"
-        width="32"
-        height="32"
-        focusable="false"
-      >
-        <circle cx="16" cy="16" r="15.5" />
+    <div className={`soft-halo pointer-events-none fixed inset-0 z-100000 overflow-visible opacity-0 contain-[layout_style] will-change-[opacity] motion-reduce:hidden print:hidden
+    [@media(hover:none)]:hidden pointer-coarse:hidden`} id="soft-halo" ref={rootRef} aria-hidden="true">
+      <svg ref={ringRef} className={`soft-halo__layer soft-halo__ring pointer-events-none absolute top-0 left-0 block size-8 origin-[16px_16px] overflow-visible
+      transform-[translate3d(-120px,-120px,0)] will-change-[transform,opacity]`} viewBox="0 0 32 32" width="32" height="32" focusable="false">
+        <circle className="fill-none stroke-[#E0AEAF] stroke-1 [vector-effect:non-scaling-stroke]" cx="16" cy="16" r="15.5" />
       </svg>
-      <span ref={dotRef} className="soft-halo__layer soft-halo__dot" />
-      <svg
-        ref={heartRef}
-        className="soft-halo__layer soft-halo__heart"
-        viewBox="0 0 24 24"
-        width="11"
-        height="11"
-        focusable="false"
-      >
-        <path d="M12 20.4S4.4 15.6 4.4 10.2A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.6 2.6C19.6 15.6 12 20.4 12 20.4Z" />
+      <span ref={dotRef} className={`soft-halo__layer soft-halo__dot pointer-events-none absolute top-0 left-0 block size-2 rounded-full bg-[#44231A] transform-[translate3d(-120px,-120px,0)]
+        will-change-[transform,opacity]`} />
+      <svg ref={heartRef} className={`soft-halo__layer soft-halo__heart pointer-events-none absolute top-0 left-0 block size-2.75 overflow-visible opacity-0
+      transform-[translate3d(-120px,-120px,0)] will-change-[transform,opacity]`} viewBox="0 0 24 24" width="11" height="11" focusable="false">
+        <path className="fill-[#44231A]" d="M12 20.4S4.4 15.6 4.4 10.2A4.4 4.4 0 0 1 12 7.6a4.4 4.4 0 0 1 7.6 2.6C19.6 15.6 12 20.4 12 20.4Z" />
       </svg>
     </div>,
-    document.body,
+    document.body
   );
 }

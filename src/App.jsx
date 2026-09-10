@@ -13,7 +13,7 @@ import SoftHaloCursor from './components/SoftHaloCursor.jsx';
 const TITLES = {
   '/': 'Like A Model — أكثر من تدريب... أسلوب حياة.',
   '/stories': 'قصص التحوّل — Like A Model',
-  '/start-your-journey': 'ابدئي رحلتكِ — Like A Model',
+  '/start-your-journey': 'ابدئي رحلتكِ — Like A Model'
 };
 
 export default function App() {
@@ -67,7 +67,6 @@ export default function App() {
     };
   }, []);
 
-  /* Sole hash/path restore: smooth to hash (PRM → auto via navScroll), instant top if none. */
   useEffect(() => {
     if (showSplash) return undefined;
     const id = window.requestAnimationFrame(() => {
@@ -86,11 +85,11 @@ export default function App() {
   return (
     <MotionRoot>
       {showSplash ? <LogoSplash onDone={onSplashDone} /> : null}
-      <div
-        className={'site-shell' + (showSplash ? ' is-splash-hidden' : '')}
-        inert={showSplash ? true : undefined}
-      >
-        <a className="skip-link" href="#main">تخطّي إلى المحتوى</a>
+      <div className={showSplash ? 'site-shell is-splash-hidden pointer-events-none select-none' : 'site-shell'} inert={showSplash ? true : undefined}>
+        <a className={`fixed inset-s-[calc(1rem+env(safe-area-inset-right))] -top-25 z-200 rounded-lam-md bg-lam-primary px-5 py-3 font-bold text-white transition-[top] duration-200
+        focus:top-4`} href="#main">
+          تخطّي إلى المحتوى
+        </a>
         <Header pinned={pinned} />
         <Outlet context={{ onOpenBooking }} />
         <Footer />

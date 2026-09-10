@@ -7,14 +7,9 @@ const FADE_MS = 400;
 const REDUCED_HOLD_MS = 500;
 
 function prefersReducedMotion() {
-  return typeof window !== 'undefined'
-    && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 }
 
-/**
- * Logo splash on every full page load: stroke-draws the centerline mark
- * from the lower body upward, then fades into the site.
- */
 export default function LogoSplash({ onDone }) {
   const svgRef = useRef(null);
   const [fading, setFading] = useState(false);
@@ -98,30 +93,17 @@ export default function LogoSplash({ onDone }) {
 
   return (
     <div
-      className={'logo-splash' + (fading ? ' is-fading' : '')}
-      role="presentation"
-      aria-hidden="true"
-      inert={fading ? true : undefined}
-    >
-      <svg
-        ref={svgRef}
-        className="logo-splash-mark"
-        viewBox={LOGO_VIEWBOX}
-        xmlns="http://www.w3.org/2000/svg"
-        fill="none"
-        aria-hidden="true"
-        focusable="false"
-      >
+      className={[
+        'fixed inset-0 z-10000 grid place-items-center bg-(--section-splash) p-[clamp(1.5rem,5vw,3rem)]',
+        fading
+          ? 'invisible pointer-events-none opacity-0 [transition:opacity_400ms_var(--ease-out,cubic-bezier(.16,1,.3,1)),visibility_0s_linear_400ms] motion-reduce:[transition:opacity_280ms_ease,visibility_0s_linear_280ms]'
+          : 'visible pointer-events-auto opacity-100 [transition:opacity_400ms_var(--ease-out,cubic-bezier(.16,1,.3,1))] motion-reduce:[transition:opacity_280ms_ease]'
+      ].join(' ')} role="presentation" aria-hidden="true" inert={fading ? true : undefined}>
+      <svg ref={svgRef} className={`block h-auto max-h-[min(62vh,480px)] w-[min(58vw,180px)] overflow-visible min-[760px]:max-h-[min(68vh,560px)] min-[760px]:w-[min(42vw,220px)]
+        min-[1100px]:max-h-[min(70vh,600px)] min-[1100px]:w-[min(28vw,240px)]`} viewBox={LOGO_VIEWBOX} xmlns="http://www.w3.org/2000/svg" fill="none" aria-hidden="true" focusable="false">
         {LOGO_PATHS.map((d, i) => (
-          <path
-            key={i}
-            d={d}
-            fill="none"
-            stroke="#3E190B"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth="2.4"
-          />
+          <path className={`fill-none stroke-(--color-logo-stroke) opacity-0 motion-reduce:opacity-100 motion-reduce:[stroke-dasharray:none] motion-reduce:[stroke-dashoffset:0]
+            motion-reduce:transition-none"`} key={i} d={d} fill="none" stroke="#3E190B" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.4" />
         ))}
       </svg>
     </div>
