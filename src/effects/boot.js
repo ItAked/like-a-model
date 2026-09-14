@@ -30,37 +30,37 @@ import {
 
 /* ✏️ ①  بيانات التواصل */
 export const CONTACT = {
-  whatsapp    : '966542555516',              // رقم واتساب بصيغة دولية بدون + أو مسافات
+  whatsapp: '966542555516',              // رقم واتساب بصيغة دولية بدون + أو مسافات
   whatsappText: '0542555516',                // الرقم كما يُعرض للزائرة
-  phoneTel    : '+966920031018',             // ما يُتصل به فعليًا عند الضغط
-  phoneText   : '920031018',                 // الرقم الموحّد كما يُعرض
-  email       : 'info@likeamodel.com.sa',
-  address     : 'الرياض – المملكة العربية السعودية',
+  phoneTel: '+966920031018',             // ما يُتصل به فعليًا عند الضغط
+  phoneText: '920031018',                 // الرقم الموحّد كما يُعرض
+  email: 'info@likeamodel.com.sa',
+  address: 'الرياض – المملكة العربية السعودية',
 
   /* ✏️ روابط الحسابات — ضعي رابط الحساب الكامل لكل منصّة.
      اتركي القيمة فارغة '' لإخفاء أيقونة المنصّة من الموقع بالكامل. */
   social: {
-    tiktok   : 'https://www.tiktok.com/',
-    youtube  : 'https://www.youtube.com/',
+    tiktok: 'https://www.tiktok.com/',
+    youtube: 'https://www.youtube.com/',
     instagram: 'https://www.instagram.com/',
-    facebook : 'https://www.facebook.com/',
-    x        : 'https://x.com/',
-    linkedin : 'https://www.linkedin.com/'
+    facebook: 'https://www.facebook.com/',
+    x: 'https://x.com/',
+    linkedin: 'https://www.linkedin.com/'
   }
 };
 
 /* ✏️ ③  فيديو الهيرو — خلفية سينمائية (أول ٣ ثوانٍ حلقيًا). */
 export const VIDEO = {
-  url   : 'https://www.youtube.com/watch?v=nuvMkMLdQqc',
+  url: 'https://www.youtube.com/watch?v=nuvMkMLdQqc',
   poster: 'https://i.ytimg.com/vi/nuvMkMLdQqc/maxresdefault.jpg',
-  start : 0,
-  end   : 3
+  start: 0,
+  end: 3
 };
 
 /* ✏️ ④  خريطة موقع الشركة — غيّري الرابطين معًا عند اعتماد الموقع النهائي */
 export const MAP = {
   embed: 'https://www.google.com/maps?q=حي%20الورود%2C%20الرياض%2C%20المملكة%20العربية%20السعودية&output=embed',
-  open:  'https://www.google.com/maps?q=حي%20الورود%2C%20الرياض%2C%20المملكة%20العربية%20السعودية'
+  open: 'https://www.google.com/maps?q=حي%20الورود%2C%20الرياض%2C%20المملكة%20العربية%20السعودية'
 };
 
 /* ✏️ ⑤  وجهة نموذج «تواصل معنا»
@@ -84,7 +84,7 @@ export const STATS_LATIN = false;
 
 export function bootPageEffects() {
 
-  const $  = (sel, ctx = document) => ctx.querySelector(sel);
+  const $ = (sel, ctx = document) => ctx.querySelector(sel);
   const $$ = (sel, ctx = document) => Array.from(ctx.querySelectorAll(sel));
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   const fx = (window.__lamFx ||= { aborts: {} });
@@ -144,14 +144,14 @@ export function bootPageEffects() {
       const slot = el.querySelector('[data-contact-text]');
       (slot || el).textContent = txt;
     };
-    setText('#phoneLink',    CONTACT.phoneText);
-    setText('#cPhoneLink',   CONTACT.phoneText);
-    setText('#waLink',       CONTACT.whatsappText);
-    setText('#cWaLink',      CONTACT.whatsappText);
-    setText('#emailLink',    CONTACT.email);
-    setText('#cMailLink',    CONTACT.email);
-    setText('#addrText',     CONTACT.address);
-    setText('#cAddrText',    CONTACT.address);
+    setText('#phoneLink', CONTACT.phoneText);
+    setText('#cPhoneLink', CONTACT.phoneText);
+    setText('#waLink', CONTACT.whatsappText);
+    setText('#cWaLink', CONTACT.whatsappText);
+    setText('#emailLink', CONTACT.email);
+    setText('#cMailLink', CONTACT.email);
+    setText('#addrText', CONTACT.address);
+    setText('#cAddrText', CONTACT.address);
 
     // حسابات التواصل — يُخفى العنصر إن لم يوجد رابط
     $$('[data-social]').forEach((a) => {
@@ -435,8 +435,8 @@ export function bootPageEffects() {
 
     const markOut = (el, entry) => {
       if (!el.classList.contains('is-in') &&
-          !el.classList.contains('is-leaving-up') &&
-          !el.classList.contains('is-leaving-down')) {
+        !el.classList.contains('is-leaving-up') &&
+        !el.classList.contains('is-leaving-down')) {
         return;
       }
       const rect = entry.boundingClientRect;
@@ -647,8 +647,8 @@ export function bootPageEffects() {
     if (!form || form.dataset.bound === '1') return;
     form.dataset.bound = '1';
 
-    const status  = $('#formStatus');
-    const submit  = $('#contactSubmit');
+    const status = $('#formStatus');
+    const submit = $('#contactSubmit');
     const otherIn = $('#cSourceOther');
     const otherFd = $('#sourceOtherField');
     const sourceEl = $('#cSource', form);
@@ -686,7 +686,7 @@ export function bootPageEffects() {
       if (!status) return;
       status.textContent = msg;
       status.classList.toggle('is-err', kind === 'err');
-      status.classList.toggle('is-ok',  kind === 'ok');
+      status.classList.toggle('is-ok', kind === 'ok');
     };
 
     const val = (sel) => ($(sel, form)?.value || '').trim();
@@ -759,7 +759,7 @@ export function bootPageEffects() {
       return issues;
     }
 
-    const ERR_KEYS = ['cName','cPhone','cWeight','cHeight','goal','source','cSourceOther','time','consent'];
+    const ERR_KEYS = ['cName', 'cPhone', 'cWeight', 'cHeight', 'goal', 'source', 'cSourceOther', 'time', 'consent'];
     const FIELD_IDS = {
       cName: '#cName', cPhone: '#cPhone', cWeight: '#cWeight', cHeight: '#cHeight',
       goal: '#cGoal', source: '#cSource', cSourceOther: '#cSourceOther',
@@ -792,31 +792,31 @@ export function bootPageEffects() {
       const src = val('#cSource');
       const other = val('#cSourceOther');
       return {
-        name    : val('#cName'),
-        phone   : val('#cPhone'),
-        weight  : val('#cWeight'),
-        height  : val('#cHeight'),
-        goal    : val('#cGoal'),
-        source  : src === 'أخرى' && other ? 'أخرى — ' + other : src,
-        time    : val('#cTime'),
-        message : val('#cMessage'),
-        consent : consentEl?.checked === true
+        name: val('#cName'),
+        phone: val('#cPhone'),
+        weight: val('#cWeight'),
+        height: val('#cHeight'),
+        goal: val('#cGoal'),
+        source: src === 'أخرى' && other ? 'أخرى — ' + other : src,
+        time: val('#cTime'),
+        message: val('#cMessage'),
+        consent: consentEl?.checked === true
       };
     }
 
     function buildMessage(d) {
       const line = (k, v, suffix) => v ? '• ' + k + ': ' + v + (suffix || '') + '\n' : '';
       return 'مرحبًا Like A Model 👋\n' +
-             'أرغب بالتواصل معكم عبر نموذج الموقع:\n\n' +
-             line('الاسم', d.name) +
-             line('رقم الجوال', d.phone) +
-             line('الوزن', d.weight, ' كجم') +
-             line('الطول', d.height, ' سم') +
-             line('الهدف', d.goal) +
-             line('كيف تعرّفتُ عليكم', d.source) +
-             line('وقت التواصل المناسب', d.time) +
-             (d.message ? '\n' + d.message + '\n' : '') +
-             '\nأتطلع لردّكم.';
+        'أرغب بالتواصل معكم عبر نموذج الموقع:\n\n' +
+        line('الاسم', d.name) +
+        line('رقم الجوال', d.phone) +
+        line('الوزن', d.weight, ' كجم') +
+        line('الطول', d.height, ' سم') +
+        line('الهدف', d.goal) +
+        line('كيف تعرّفتُ عليكم', d.source) +
+        line('وقت التواصل المناسب', d.time) +
+        (d.message ? '\n' + d.message + '\n' : '') +
+        '\nأتطلع لردّكم.';
     }
 
     form.addEventListener('submit', async (e) => {
@@ -1231,7 +1231,7 @@ export function bootPageEffects() {
 
     const TOTAL = 5;
     const RIYADH = { lat: 24.7136, lng: 46.6753 };
-    const MONTHS_AR = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+    const MONTHS_AR = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
     const DEFAULT_LOCATION = 'صلاح الدين - الرياض';
 
     const dialog = $('.bk-modal-dialog', modal);
@@ -1413,9 +1413,9 @@ export function bootPageEffects() {
       const startLng = Number(lngEl?.value) || RIYADH.lng;
       if (!map) {
         map = L.map(mapEl, { scrollWheelZoom: false, attributionControl: true });
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
           maxZoom: 19,
-          attribution: '&copy; OpenStreetMap'
+          attribution: 'Tiles &copy; Esri'
         }).addTo(map);
         marker = L.marker([startLat, startLng], { draggable: true }).addTo(map);
         marker.on('dragend', () => {
