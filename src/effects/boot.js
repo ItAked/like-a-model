@@ -1274,6 +1274,9 @@ export function bootPageEffects() {
     let pendingLatLng = null;
     let slotsAbort = null;
     let slotsRequestToken = 0;
+    /** @type {Record<string, string[]>} */
+    let availabilityByDate = {};
+    let availabilityReady = false;
     let submitting = false;
     let closeTimer = 0;
     let calCursor = new Date();
@@ -1393,9 +1396,6 @@ export function bootPageEffects() {
       if (addressEl) addressEl.value = addr;
       setErr('bkLocation', '');
       showLocateDone();
-      clearSelectedSlot();
-      const date = bookingDate();
-      if (date) loadSlots(date);
     }
 
     async function ensureMap() {
@@ -1463,9 +1463,6 @@ export function bootPageEffects() {
       if (addressEl) addressEl.value = '';
       pendingLatLng = null;
       showLocateIdle();
-      clearSelectedSlot();
-      const date = bookingDate();
-      if (date) loadSlots(date);
     }
 
     function todayStart() {
@@ -1482,10 +1479,14 @@ export function bootPageEffects() {
     function bookingDate(iso) {
       return normalizeIsoDate(iso ?? val('#bkDate'));
     }
-    function slotsResultStillCurrent(token, date, location) {
-      return token === slotsRequestToken
-        && bookingDate() === date
-        && bookingLocation() === location;
+    function availableTimesFor(iso) {
+      const date = normalizeIsoDate(iso);
+      if (!date) return [];
+      const times = availabilityByDate[date];
+      return Array.isArray(times) ? times : [];
+    }
+    function isDateAvailable(iso) {
+      return availableTimesFor(iso).length > 0;
     }
     function formatDateAr(iso) {
       if (!iso) return '';
@@ -1519,10 +1520,13 @@ export function bootPageEffects() {
         btn.className = 'bk-cal-day';
         btn.textContent = toAr(day);
         btn.dataset.date = iso;
-        if (date < today) btn.disabled = true;
+        const past = date < today;
+        const available = !past && isDateAvailable(iso);
+        if (past || !available) btn.disabled = true;
+        if (available) btn.classList.add('is-available');
         if (ymd(today) === iso) btn.classList.add('is-today');
         if (selected === iso) btn.classList.add('is-on');
-        btn.addEventListener('click', () => selectDate(iso));
+        if (available) btn.addEventListener('click', () => selectDate(iso));
         frag.appendChild(btn);
       }
       calGrid.replaceChildren(frag);
@@ -1534,12 +1538,12 @@ export function bootPageEffects() {
 
     function selectDate(iso) {
       const date = normalizeIsoDate(iso);
-      if (!date) return;
+      if (!date || !isDateAvailable(date)) return;
       if (dateEl) dateEl.value = date;
       clearSelectedSlot();
       setErr('bkAppt', '');
       paintCalendar();
-      loadSlots(date);
+      showTimesForDate(date);
     }
 
     function selectSlot(value) {
@@ -1581,7 +1585,7 @@ export function bootPageEffects() {
       slotsList.replaceChildren(frag);
     }
 
-    async function loadSlots(requestedDate) {
+    function showTimesForDate(requestedDate) {
       const date = bookingDate(requestedDate);
       if (!date) {
         if (slotsWrap) slotsWrap.hidden = true;
@@ -1591,34 +1595,84 @@ export function bootPageEffects() {
         return;
       }
 
-      if (dateEl && dateEl.value !== date) dateEl.value = date;
-
       if (slotsWrap) slotsWrap.hidden = false;
       if (slotsRetry) slotsRetry.hidden = true;
-      if (slotsList) slotsList.replaceChildren();
-      setSlotsStatus('جارٍ تحميل الأوقات المتاحة…');
+      const slots = availableTimesFor(date);
+      if (!slots.length) {
+        if (slotsList) slotsList.replaceChildren();
+        setSlotsStatus('لا توجد مواعيد متاحة لهذا اليوم، اختاري تاريخًا آخر.');
+        return;
+      }
+      setSlotsStatus('');
+      renderSlotButtons(slots);
+    }
+
+    async function loadAvailability({ force = false } = {}) {
+      if (availabilityReady && !force) {
+        paintCalendar();
+        const date = bookingDate();
+        if (date) showTimesForDate(date);
+        return;
+      }
 
       if (slotsAbort) slotsAbort.abort();
       slotsAbort = new AbortController();
       const token = ++slotsRequestToken;
       const location = bookingLocation();
 
+      if (slotsWrap) slotsWrap.hidden = false;
+      if (slotsRetry) slotsRetry.hidden = true;
+      if (slotsList) slotsList.replaceChildren();
+      setSlotsStatus('جارٍ تحميل المواعيد المتاحة…');
+      paintCalendar();
+
       try {
-        const slots = await getEvaluationSlots({
+        const byDate = await getEvaluationSlots({
           location,
-          date,
           signal: slotsAbort.signal,
         });
-        if (!slotsResultStillCurrent(token, date, location)) return;
-        if (!slots.length) {
-          setSlotsStatus('لا توجد مواعيد متاحة لهذا اليوم، اختاري تاريخًا آخر.');
-          return;
+        if (token !== slotsRequestToken || bookingLocation() !== location) return;
+        availabilityByDate = byDate;
+        availabilityReady = true;
+
+        const selected = bookingDate();
+        if (selected && !isDateAvailable(selected)) {
+          if (dateEl) dateEl.value = '';
+          clearSelectedSlot();
         }
-        setSlotsStatus('');
-        renderSlotButtons(slots);
+
+        const availableDates = Object.keys(availabilityByDate).sort();
+        if (availableDates.length) {
+          const anchor = bookingDate() || availableDates.find((d) => {
+            const [y, m, day] = d.split('-').map(Number);
+            return new Date(y, m - 1, day) >= todayStart();
+          }) || availableDates[0];
+          const [y, m] = anchor.split('-').map(Number);
+          calCursor = new Date(y, m - 1, 1);
+        }
+
+        paintCalendar();
+        const date = bookingDate();
+        if (date) {
+          showTimesForDate(date);
+        } else {
+          const hasAny = Object.keys(availabilityByDate).length > 0;
+          if (slotsList) slotsList.replaceChildren();
+          setSlotsStatus(
+            hasAny
+              ? 'اختاري يومًا مظللًا لعرض الأوقات المتاحة.'
+              : 'لا توجد مواعيد متاحة حاليًا.',
+          );
+          if (slotsWrap) slotsWrap.hidden = false;
+          if (slotsRetry) slotsRetry.hidden = hasAny;
+        }
       } catch (err) {
         if (err && err.name === 'AbortError') return;
-        if (!slotsResultStillCurrent(token, date, location)) return;
+        if (token !== slotsRequestToken || bookingLocation() !== location) return;
+        availabilityByDate = {};
+        availabilityReady = false;
+        paintCalendar();
+        if (slotsList) slotsList.replaceChildren();
         setSlotsStatus(
           err instanceof PublicApiError
             ? err.message
@@ -1626,6 +1680,7 @@ export function bootPageEffects() {
           'err',
         );
         if (slotsRetry) slotsRetry.hidden = false;
+        if (slotsWrap) slotsWrap.hidden = false;
       }
     }
 
@@ -1745,15 +1800,7 @@ export function bootPageEffects() {
       if (step === 2) { paintHello(); playHelloEnter(); }
       if (step === 3) syncLocateUi();
       if (step === 4) {
-        paintCalendar();
-        const date = bookingDate();
-        if (date) loadSlots(date);
-        else {
-          if (slotsWrap) slotsWrap.hidden = true;
-          if (slotsList) slotsList.replaceChildren();
-          setSlotsStatus('');
-          if (slotsRetry) slotsRetry.hidden = true;
-        }
+        loadAvailability();
       }
       if (step === 5) paintReview();
       syncSend();
@@ -1785,6 +1832,8 @@ export function bootPageEffects() {
         slotsAbort = null;
       }
       slotsRequestToken += 1;
+      availabilityByDate = {};
+      availabilityReady = false;
       if (latEl) latEl.value = '';
       if (lngEl) lngEl.value = '';
       if (addressEl) addressEl.value = '';
@@ -1892,8 +1941,7 @@ export function bootPageEffects() {
       paintCalendar();
     });
     slotsRetry?.addEventListener('click', () => {
-      const date = bookingDate();
-      if (date) loadSlots(date);
+      loadAvailability({ force: true });
     });
     slotsList?.addEventListener('click', (e) => {
       const btn = e.target.closest('.bk-slot');
@@ -1940,17 +1988,26 @@ export function bootPageEffects() {
       sendBtn.setAttribute('aria-disabled', 'true');
       say('جارٍ الإرسال…');
       try {
-        const res = await createEvaluationBooking({
+        const booking = {
           full_name: data.name,
           phone: data.phone,
           weight: String(data.weight),
           height: String(data.height),
           goal: data.goal,
-          location: data.location,
           date: data.date,
           time: data.slot,
           consent: true,
-        });
+        };
+        if (data.lat && data.lng) {
+          const lat = Number(data.lat);
+          const lng = Number(data.lng);
+          if (Number.isFinite(lat) && Number.isFinite(lng)) {
+            booking.lat = lat;
+            booking.lng = lng;
+          }
+        }
+        if (data.address) booking.address = data.address;
+        const res = await createEvaluationBooking(booking);
         form.reset();
         resetBookingExtras();
         step = 1;

@@ -121,26 +121,37 @@ export function normalizeIsoDate(raw) {
 }
 
 /**
- * @param {{ location: string, date: string, signal?: AbortSignal }} params
- * @returns {Promise<string[]>}
+ * Public evaluation slots for a site.
+ * API shape: `{ data: { slots: [{ date: "YYYY-MM-DD", times: ["HH:MM", ...] }, ...] } }`
+ *
+ * @param {{ location: string, signal?: AbortSignal }} params
+ * @returns {Promise<Record<string, string[]>>} map of ISO date → available times
  */
-export async function getEvaluationSlots({ location, date, signal }) {
-  const isoDate = normalizeIsoDate(date);
-  if (!isoDate) return [];
-
+export async function getEvaluationSlots({ location, signal }) {
   const qs = new URLSearchParams({
     location: String(location || '').trim(),
-    date: isoDate,
   });
   const payload = await apiRequest(`/api/public/evaluation-slots?${qs.toString()}`, {
     method: 'GET',
     signal,
   });
-  const slots = payload && typeof payload === 'object'
+  const rows = payload && typeof payload === 'object'
     ? /** @type {any} */ (payload).data?.slots
     : null;
-  if (!Array.isArray(slots)) return [];
-  return slots.map((s) => String(s)).filter(Boolean);
+
+  /** @type {Record<string, string[]>} */
+  const byDate = {};
+  if (!Array.isArray(rows)) return byDate;
+
+  for (const row of rows) {
+    if (!row || typeof row !== 'object') continue;
+    const iso = normalizeIsoDate(/** @type {any} */ (row).date);
+    const timesRaw = /** @type {any} */ (row).times;
+    if (!iso || !Array.isArray(timesRaw)) continue;
+    const times = timesRaw.map((t) => String(t || '').trim()).filter(Boolean);
+    if (times.length) byDate[iso] = times;
+  }
+  return byDate;
 }
 
 /**

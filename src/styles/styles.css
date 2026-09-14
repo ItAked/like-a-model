@@ -575,7 +575,16 @@ body.is-logo-splash{overflow:hidden;background:var(--section-splash)}
 .bk-cal-day.is-empty{visibility:hidden;pointer-events:none}
 .bk-cal-day:disabled{color:var(--color-placeholder);cursor:not-allowed;opacity:.55}
 .bk-cal-day.is-today{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--color-primary) 55%,transparent)}
+.bk-cal-day.is-available{
+  background:color-mix(in srgb,var(--color-primary) 42%,white);
+  color:var(--color-brown);
+  font-weight:var(--w-head);
+  cursor:pointer;
+  opacity:1;
+}
+.bk-cal-day.is-available:hover:not(:disabled){background:var(--color-primary-hover)}
 .bk-cal-day.is-on{background:var(--color-primary);color:var(--color-brown);font-weight:var(--w-head)}
+.bk-cal-day.is-available.is-on{background:var(--color-primary);box-shadow:0 0 0 2px color-mix(in srgb,var(--color-primary) 35%,transparent)}
 .bk-slot{
   min-height:2.35rem;
   padding:.4rem .85rem;
