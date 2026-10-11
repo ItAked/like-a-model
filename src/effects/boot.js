@@ -1747,8 +1747,11 @@ export function bootPageEffects() {
         else ok(goalEl, 'bkGoal');
       }
       if (n === 3) {
-        // موقع الجلسة اختياري — يمكن المتابعة بدون تحديد
-        setErr('bkLocation', '');
+        const lat = Number(val('#bkLat'));
+        const lng = Number(val('#bkLng'));
+        if (!Number.isFinite(lat) || !Number.isFinite(lng) || val('#bkLat') === '' || val('#bkLng') === '') {
+          fail(locateOpen, 'bkLocation', 'حددي موقع الزيارة على الخريطة.');
+        } else ok(locateOpen, 'bkLocation');
       }
       if (n === 4) {
         if (!val('#bkDate') || !val('#bkSlot')) {
@@ -1988,6 +1991,8 @@ export function bootPageEffects() {
       sendBtn.setAttribute('aria-disabled', 'true');
       say('جارٍ الإرسال…');
       try {
+        const lat = Number(data.lat);
+        const lng = Number(data.lng);
         const booking = {
           full_name: data.name,
           phone: data.phone,
@@ -1997,25 +2002,19 @@ export function bootPageEffects() {
           date: data.date,
           time: data.slot,
           consent: true,
+          neighborhood: data.address || 'موقع محدد',
+          latitude: lat,
+          longitude: lng,
+          maps_url: 'https://maps.google.com/?q=' + lat.toFixed(5) + ',' + lng.toFixed(5),
         };
-        if (data.lat && data.lng) {
-          const lat = Number(data.lat);
-          const lng = Number(data.lng);
-          if (Number.isFinite(lat) && Number.isFinite(lng)) {
-            booking.lat = lat;
-            booking.lng = lng;
-          }
-        }
-        if (data.address) booking.address = data.address;
+        if (data.address) booking.address_details = data.address;
         const res = await createEvaluationBooking(booking);
         form.reset();
         resetBookingExtras();
         step = 1;
         syncFilledAll();
         showStep();
-        const okMsg = (res && typeof res.message === 'string' && res.message.trim())
-          ? res.message.trim()
-          : 'تم استلام طلب الحجز وسيتواصل الفريق للتأكيد.';
+        const okMsg = (res && typeof res.message === 'string' && res.message.trim()) ? res.message.trim() : 'تم استلام طلب الحجز وسيتواصل الفريق للتأكيد.';
         say(okMsg, 'ok');
         closeTimer = window.setTimeout(() => {
           closeModal();
