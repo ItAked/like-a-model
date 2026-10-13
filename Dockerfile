@@ -46,6 +46,11 @@ FROM nginx:1.27-alpine AS production
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /src/app/dist /usr/share/nginx/html
 
+# Ensure public assets (especially assets/img/*) are traversable/readable by the
+# nginx worker user. Without +x on directories, nginx returns 403 for those files
+# while hashed files directly under /assets/ still work.
+RUN chmod -R a+rX /usr/share/nginx/html
+
 EXPOSE 80
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
