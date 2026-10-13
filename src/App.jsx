@@ -13,14 +13,18 @@ import SoftHaloCursor from './components/SoftHaloCursor.jsx';
 const TITLES = {
   '/': 'Like A Model — أكثر من تدريب... أسلوب حياة.',
   '/stories': 'قصص التحوّل — Like A Model',
-  '/start-your-journey': 'ابدئي رحلتكِ — Like A Model'
+  '/start-your-journey': 'ابدئي رحلتكِ — Like A Model',
+  '/privacy-policy': 'سياسة الخصوصية — Like A Model',
 };
 
 export default function App() {
   const location = useLocation();
   const [isBookingOpen, setIsBookingOpen] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
-  const pinned = location.pathname === '/stories' || location.pathname === '/start-your-journey';
+  const pinned =
+    location.pathname === '/stories'
+    || location.pathname === '/start-your-journey'
+    || location.pathname === '/privacy-policy';
 
   const onSplashDone = useCallback(() => {
     setShowSplash(false);
@@ -53,6 +57,7 @@ export default function App() {
     document.title = TITLES[location.pathname] || TITLES['/'];
     document.body.classList.toggle('page-stories', location.pathname === '/stories');
     document.body.classList.toggle('page-syj', location.pathname === '/start-your-journey');
+    document.body.classList.toggle('page-privacy', location.pathname === '/privacy-policy');
     document.body.classList.toggle('is-bk-open', isBookingOpen);
   }, [location.pathname, isBookingOpen]);
 

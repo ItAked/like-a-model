@@ -97,6 +97,14 @@ export default function Footer() {
             حقوق النشر <span id="year">٢٠٢٦</span> <bdi className="font-lam-brand" lang="en">Like A Model</bdi> — بدعم من <bdi className="font-lam-brand" lang="en">AKED</bdi>
           </p>
           <p className="text-[.8rem] text-(--footer-muted)">شركة احتياجات التطوير المحدودة</p>
+          <p className="footer-policy mt-[.35rem]">
+            <Link
+              className="text-[.875rem] font-medium text-(--footer-text) underline underline-offset-[3px] hover:text-(--color-brown)"
+              to="/privacy-policy"
+            >
+              سياسة الخصوصية
+            </Link>
+          </p>
           <ul className="m-0 flex flex-wrap justify-center gap-x-(--s-6) gap-y-[.35rem] p-0 text-[.8rem] text-(--footer-muted)">
             <li className="inline-flex items-center gap-[.4rem]"><span className="text-(--footer-muted)">السجل التجاري</span> <bdi dir="ltr">7041363214</bdi></li>
             <li className="inline-flex items-center gap-[.4rem]"><span className="text-(--footer-muted)">الرقم الضريبي</span> <bdi dir="ltr">312464626900003</bdi></li>

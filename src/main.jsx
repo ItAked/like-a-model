@@ -4,6 +4,7 @@ import App from './App.jsx';
 import HomePage from './pages/HomePage.jsx';
 import StoriesPage from './pages/StoriesPage.jsx';
 import StartJourneyPage from './pages/StartJourneyPage.jsx';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage.jsx';
 import './styles/index.css';
 
 function HomeRoute() {
@@ -23,6 +24,7 @@ createRoot(document.getElementById('root')).render(
         <Route index element={<HomeRoute />} />
         <Route path="stories" element={<StoriesRoute />} />
         <Route path="start-your-journey" element={<StartJourneyPage />} />
+        <Route path="privacy-policy" element={<PrivacyPolicyPage />} />
       </Route>
     </Routes>
   </BrowserRouter>,
